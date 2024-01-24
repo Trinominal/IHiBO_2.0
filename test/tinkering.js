@@ -1,6 +1,8 @@
+//ganache-cli -p 8545 -i 5777 -l 9000000000000000
+// inside ihibo folder: truffle test ./test/tinkering.js
 const Argumentation = artifacts.require('Argumentation');
 const fs = require('fs');
-const filepath = './data.csv';
+const filepath = './data3.csv';
 
 const printGraph = (g) => {
   console.log('--------Graph--------');
@@ -15,6 +17,23 @@ const printGraph = (g) => {
       g.edgesTarget[i].toString()
     );
   }
+  console.log('---------------------');
+};
+
+const printGraph2 = (g) => {
+  console.log('--------Graph--------');
+  for (i=0; i<g.nodes.length; i++) {
+    console.log('Node:', g.nodes[i].toString(), ';  Votes:', g.votes[i].toString());
+  }
+
+  for (let i = 0; i < g.edgesSource.length; i++) {
+    console.log(
+      g.edgesSource[i].toString(),
+      ' -> ',
+      g.edgesTarget[i].toString()
+    );
+  }
+  console.log('---------------------');
 };
 
 const getRandomIntInclusive = (min, max) => {
@@ -23,6 +42,7 @@ const getRandomIntInclusive = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive
 };
 
+/*
 contract('Tinkering 1', (accounts) => {
   const alpha = accounts[0];
   const beta = accounts[1];
@@ -47,7 +67,7 @@ contract('Tinkering 1', (accounts) => {
 
     // Graph operations
     const g = await sc.getGraph(1);
-    
+        
     const resReduction1 = await sc.pafReductionToAfPr1();
     const r1 = await sc.getGraph(2);
 
@@ -66,25 +86,53 @@ contract('Tinkering 1', (accounts) => {
 
 
     // Printing
-    printGraph(g);
+    // printGraph(g);
 
-    printGraph(r1);
-    printGraph(r2);
-    printGraph(r3);
+    // console.log('pafReductionToAfPr1');
+    // printGraph(r1);
+    // console.log('pafReductionToAfPr2');
+    // printGraph(r2);
+    // console.log('pafReductionToAfPr3');
+    // printGraph(r3);
 
-    r4.logs.forEach((element) => {
-      console.log('***************************************');
-      console.log(element.args.args);
-    });
+    // r4.logs.forEach((element) => {
+    //   console.log('***************************************');
+    //   console.log(element.args.args);
+    // });
 
-    printGraph(r5);
-    r6.logs.forEach((element) => {
-      console.log('***************************************');
-      console.log(element.args.args);
-    });
+    // console.log('pafReductionToAfPr4');
+    // printGraph(r5);
+    // r6.logs.forEach((element) => {
+    //   console.log('***************************************');
+    //   console.log(element.args.args);
+    // });
+
+    // let x = await sc.getNodeValue();
+    // console.log(x);
+    // n = await sc.getGraphIds();
+    // console.log('number of graphs: ', n);
+    // let x = await sc.getGraphIds();
+    // console.log(x);
+    // let x = await sc.getNodeValue(0);
+    // let y = await sc.getNodeValue(1);
+    // console.log(x.toString(), y.toString());
+
+    const t1 = await sc.getGraph2(1);
+    console.log('Original');
+    printGraph2(t1);
+
+    const t2 = await sc.getGraph2(3);
+    console.log('pafReductionToAfPr1 (f2)');
+    printGraph(t2);
+
+    const t3 = await sc.getGraph2(5);
+    console.log('pafReductionToAfPr2 (f4)');
+    printGraph(t3);
+    
   });
 });
-
+*/
+/*
 contract('Tinkering 2', (accounts) => {
   const alpha = accounts[0];
   const beta = accounts[1];
@@ -105,8 +153,8 @@ contract('Tinkering 2', (accounts) => {
     });
 
     const resBetaSupport = await sc.supportArgument(2, {
-        from: beta,
-      });
+      from: beta,
+    });
 
     const edgeAB = await sc.insertAttack(1, 2, '');
 
@@ -132,26 +180,46 @@ contract('Tinkering 2', (accounts) => {
 
 
     // Printing
-    printGraph(g);
+    // printGraph(g);
 
-    printGraph(r1);
-    printGraph(r2);
-    printGraph(r3);
+    // console.log('pafReductionToAfPr1');
+    // printGraph(r1);
+    // console.log('pafReductionToAfPr2');
+    // printGraph(r2);
+
+    // console.log('pafReductionToAfPr3');
+    // printGraph(r3);
+    // r4.logs.forEach((element) => {
+    //   console.log('***************************************');
+    //   console.log(element.args.args);
+    // });
+
+    // console.log('pafReductionToAfPr4');
+    // printGraph(r5);
+    // r6.logs.forEach((element) => {
+    //   console.log('***************************************');
+    //   console.log(element.args.args);
+    // });
+
+
+    // let x = await sc.getNodeValue(0);
+    // let y = await sc.getNodeValue(1);
+    // console.log(x.toString(), y.toString());
+    const t1 = await sc.getGraph2(1);
+    console.log('Original');
+    printGraph2(t1);
+
+    const t2 = await sc.getGraph2(3);
+    console.log('pafReductionToAfPr1 (f2)');
+    printGraph(t2);
+
+    const t3 = await sc.getGraph2(5);
+    console.log('pafReductionToAfPr2 (f4)');
+    printGraph(t3);
     
-
-    r4.logs.forEach((element) => {
-      console.log('***************************************');
-      console.log(element.args.args);
-    });
-
-    printGraph(r5);
-    r6.logs.forEach((element) => {
-      console.log('***************************************');
-      console.log(element.args.args);
-    });
   });
 });
-
+*/
 
 /*
 contract('Argumentation 0', (accounts) => {
@@ -386,21 +454,31 @@ contract('Argumentation 2', (accounts) => {
 });
 */
 
-/*
-for (let i = 0; i < 1; i++) {
-  contract('Argumentation N', (accounts) => {
+// /*
+fs.writeFile(filepath, `NodesNumber, EdgesNumber, EdgesP, PrefP, ReductionPref3, PrefExtensionsGas\n`, (err) => {
+  if (err) throw err;
+  console.log('New data file has been saved!');
+});
+
+for (let i = 0; i < 12; i++) {
+  contract('Tinkering N', (accounts) => {
     const alpha = accounts[0];
     const beta = accounts[1];
     const gamma = accounts[2];
     const prefP = 0.25;
-    const nodesNumber = 5;
-    const edgesP = 0.66;
+    const nodesNumber = [5,10,15,20];
+    const edgesP = [0.33,0.5,0.66];
     let edgesNumber = 0;
 
     it('random graphs', async () => {
       const sc = await Argumentation.deployed();
 
-      for (let j = 0; j < nodesNumber; j++) {
+      if (i==1) {
+        const g = await sc.getGraph2(1);
+        printGraph2(g);
+      }
+      
+      for (let j = 0; j < nodesNumber[i%4]; j++) {
         await sc.insertArgument(`a`, {
           from: accounts[j % 3],
         });
@@ -413,19 +491,19 @@ for (let i = 0; i < 1; i++) {
         }
       }
 
-      for (let source = 1; source <= nodesNumber; source++) {
-        for (let target = 1; target <= nodesNumber; target++) {
-          if (Math.random() < edgesP && source != target) {
+      for (let source = 1; source <= nodesNumber[i%4]; source++) {
+        for (let target = 1; target <= nodesNumber[i%4]; target++) {
+          if (Math.random() < edgesP[i%3] && source != target) {
             await sc.insertAttack(source, target, '');
             edgesNumber++;
           }
         }
       }
 
-      //const g = await sc.getGraph(1);
-      //printGraph(g);
+      const g = await sc.getGraph2(1);
+      printGraph2(g);
 
-      const resReduction3 = await sc.pafReductionToAfPr3();
+      const resReduction3 = await sc.pafReductionToAfPr4();
       //const r3 = await sc.getGraph(3);
       //printGraph(r3);
       const reductionGasUsed = resReduction3.receipt.gasUsed;
@@ -441,10 +519,10 @@ for (let i = 0; i < 1; i++) {
 
       fs.writeFileSync(
         filepath,
-        `${nodesNumber}, ${edgesNumber}, ${edgesP}, ${prefP}, ${reductionGasUsed}, ${gasUsed}\n`,
+        `${nodesNumber[i%4]}, ${edgesNumber}, ${edgesP[i%3]}, ${prefP}, ${reductionGasUsed}, ${gasUsed}\n`,
         { flag: 'a' }
       );
     });
   });
-}
-*/
+};
+// */

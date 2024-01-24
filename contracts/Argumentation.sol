@@ -27,6 +27,21 @@ contract Argumentation {
         graphsIds.insert(bytes32(uint256(1)));
     }
 
+////////////////////
+    function getNodeValue(uint256 argID) 
+        public
+        view
+        returns (uint256 value)
+    {
+        // assumes argID exists
+        
+        DirectedGraph.Graph storage graph = graphs[1];
+        uint256 nodeId = uint256(graph.nodesIds.keyAtIndex(argID));
+        DirectedGraph.Node storage node = graph.nodes[nodeId];
+        value = node.value;
+    }
+///////////////////////////////
+
     function insertArgument(string memory metadata)
         public
         returns (uint256 argId)
@@ -58,6 +73,7 @@ contract Argumentation {
         DirectedGraph.Graph storage graph = graphs[1];
         edgeId = graph.insertEdge(sourceId, targetId, metadata);
     }
+
 
     // reduction of PAF to AF; PR(PAF)=AF
     function pafReductionToAfPr1() public returns (uint256 graphId) {
@@ -226,6 +242,40 @@ contract Argumentation {
             edgesTarget[i] = edge.target;
         }
     }
+
+/////////////////////////////////////////////
+    function getGraph2(uint256 graphId)
+        public
+        view
+        returns (
+            uint256[] memory nodes,
+            uint256[] memory votes,
+            uint256[] memory edgesSource,
+            uint256[] memory edgesTarget
+        )
+    {
+        DirectedGraph.Graph storage graph = graphs[graphId];
+        uint256 nodesCount = graph.nodesIds.count();
+        uint256 edgesCount = graph.edgesIds.count();
+
+        nodes = new uint256[](nodesCount);
+        votes = new uint256[](nodesCount);
+        edgesSource = new uint256[](edgesCount);
+        edgesTarget = new uint256[](edgesCount);
+
+        for (uint256 i = 0; i < graph.nodesIds.count(); i++) {
+            nodes[i] = uint256(graph.nodesIds.keyAtIndex(i));
+            votes[i] = uint256(graph.nodes[nodes[i]].value);
+        }
+
+        for (uint256 i = 0; i < graph.edgesIds.count(); i++) {
+            uint256 edgeId = uint256(graph.edgesIds.keyAtIndex(i));
+            DirectedGraph.Edge storage edge = graph.edges[edgeId];
+            edgesSource[i] = edge.source;
+            edgesTarget[i] = edge.target;
+        }
+    }
+///////////////////////////////////////////
 
     function enumeratingPreferredExtensions(uint256 graphId)
         public
