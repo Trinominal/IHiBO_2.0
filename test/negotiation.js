@@ -182,6 +182,11 @@ contract('Negotiation', (accounts) => {
     }
     console.log('newOffer(): ', gasAvgProp / proposalsGasUsage.length);
   });
+});
+
+contract('Negotiation', (accounts) => {
+  const alpha = accounts[0];
+  const beta = accounts[1];
 
   it('negotiation 2', async () => {
     const sc = await Negotiation.deployed();
@@ -235,7 +240,7 @@ contract('Negotiation', (accounts) => {
 
       let xba = [];
       for (let j = 0; j < constjBeta.constj.length; j++) {
-        console.log(sc.newOffer, sc.accept);
+        // console.log(sc.newOffer, sc.accept);
         xba.push(
           timeDependentTactic(
             0,
