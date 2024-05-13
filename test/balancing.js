@@ -31,30 +31,30 @@ const printReasons = (R) => {
   console.log('-----------------------');
 };
 
-const printContexts = (C) => {
-  console.log('-------Contexts--------');
+// const printContexts = (C) => {
+//   console.log('-------Contexts--------');
 
-  for (let i = 0; i < C.issues.length; i++) {
-    let x = '';
-    if (C.reasonss[i].length > 0) {
-      C.reasonss[i][0] == 0 ? x = 'r?' : x = 'r' + C.reasonss[i][0].toString();
-      for (let j = 1; j < C.reasonss[i].length; j++) {
-        C.reasonss[i][j] == 0 ? x = x + ', r?' : x = x + ', r' + C.reasonss[i][j].toString();
-      }
-    } 
-    else {
-    }
-    let y = 'y';
-    let c = 'c';
-    C.issues[i] == 0 ? y += '?' : y += C.issues[i].toString();
-    i == 0 ? c += '?' : c += i.toString();
-    console.log(
-      c, ' = ((' + x + '), ' + y + ')'
-    );
-  } 
+//   for (let i = 0; i < C.issues.length; i++) {
+//     let x = '';
+//     if (C.reasonss[i].length > 0) {
+//       C.reasonss[i][0] == 0 ? x = 'r?' : x = 'r' + C.reasonss[i][0].toString();
+//       for (let j = 1; j < C.reasonss[i].length; j++) {
+//         C.reasonss[i][j] == 0 ? x = x + ', r?' : x = x + ', r' + C.reasonss[i][j].toString();
+//       }
+//     } 
+//     else {
+//     }
+//     let y = 'y';
+//     let c = 'c';
+//     C.issues[i] == 0 ? y += '?' : y += C.issues[i].toString();
+//     i == 0 ? c += '?' : c += i.toString();
+//     console.log(
+//       c, ' = ((' + x + '), ' + y + ')'
+//     );
+//   } 
 
-  console.log('-----------------------');
-};
+//   console.log('-----------------------');
+// };
 
 const printWeights = (W) => {
   console.log('--------Weights--------');
