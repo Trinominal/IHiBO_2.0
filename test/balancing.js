@@ -3,7 +3,7 @@ const fs = require('fs');
 const filepath = './data4.csv';
 // import LogRocket from 'logrocket';
 
-// LogRocket.init('2dxvqu/bullshit');
+
 
 
 const printReasons = (R) => {
