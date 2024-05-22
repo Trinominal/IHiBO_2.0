@@ -99,6 +99,13 @@ contract Balancing {
     	// TODO change to depend on access rights and can only be called at the start
     	if(reasonsIds.count() < 1) {
     	    issueTBD = issue;
+
+            // uint256 reasonID = reasonsIds.count() + 1;
+            // reasonsIds.insert(bytes32(reasonID));
+            // Reason storage reason = reasons[reasonID];
+            // reason.justification = 0;
+            // reason.issue = issue;
+            // reason.polarity = 0;
     	}
     }
 
@@ -165,7 +172,7 @@ contract Balancing {
 
     function procedureAdditive()
         public
-        view 
+        // view 
         returns (int256 sum)
     {
 
