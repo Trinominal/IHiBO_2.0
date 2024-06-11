@@ -111,37 +111,39 @@ contract('Balancing debugging', (accounts) => {
 
     sc.setIssue(1);
 
-    const resAlpha10 = await sc.voteOnReason.call(1,1,1, {
+    sc.setReputation(alpha, 1);
+
+    const resAlpha10 = await sc.voteOnReason.call(1,1,1,1, {
       from: alpha,
     });
-    const resAlpha1 = await sc.voteOnReason(1,1,1, {
+    const resAlpha1 = await sc.voteOnReason(1,1,1,1, {
       from: alpha,
     });
-    const resAlpha12 = await sc.voteOnReason.call(1,1,1, {
+    const resAlpha12 = await sc.voteOnReason.call(1,1,1,1, {
       from: alpha,
     });
 
-    const resAlpha20 = await sc.voteOnReason.call(2,1,2, {
+    const resAlpha20 = await sc.voteOnReason.call(2,1,2,1, {
       from: alpha,
     });
-    const resAlpha2 = await sc.voteOnReason(2,1,2, {
+    const resAlpha2 = await sc.voteOnReason(2,1,2,1, {
       from: alpha,
     });
-    const resAlpha22 = await sc.voteOnReason.call(2,1,2, {
-      from: alpha,
-    });
-
-    const resAlpha30 = await sc.voteOnReason.call(3,1,0, {
-      from: alpha,
-    });
-    const resAlpha3 = await sc.voteOnReason(3,1,0, {
-      from: alpha,
-    });
-    const resAlpha31 = await sc.voteOnReason.call(3,1,0, {
+    const resAlpha22 = await sc.voteOnReason.call(2,1,2,1, {
       from: alpha,
     });
 
-    const resAlpha4 = await sc.voteOnReason(4,1,0, {
+    const resAlpha30 = await sc.voteOnReason.call(3,1,0,1, {
+      from: alpha,
+    });
+    const resAlpha3 = await sc.voteOnReason(3,1,0,1, {
+      from: alpha,
+    });
+    const resAlpha31 = await sc.voteOnReason.call(3,1,0,1, {
+      from: alpha,
+    });
+
+    const resAlpha4 = await sc.voteOnReason(4,1,0,1, {
       from: alpha,
     });
 
@@ -236,19 +238,23 @@ contract('Balancing 0', (accounts) => {
 
     sc.setIssue(1);
 
-    const resAlpha = await sc.voteOnReason(1,1,1, {
+    sc.setReputation(alpha, 1);
+    sc.setReputation(beta, 1);
+    sc.setReputation(gamma, 1);
+
+    const resAlpha = await sc.voteOnReason(1,1,1,1, {
       from: alpha,
     });
-    const resBeta = await sc.voteOnReason(2,1,2, {
+    const resBeta = await sc.voteOnReason(2,1,2,1, {
       from: beta,
     });
-    const resGamma = await sc.voteOnReason(3,1,2, {
+    const resGamma = await sc.voteOnReason(3,1,2,1, {
       from: gamma,
     });
-    const resBetaSupport = await sc.voteOnReason(3,1,2, {
+    const resBetaSupport = await sc.voteOnReason(3,1,2,1, {
       from: beta,
     });
-    const resGammaSupport = await sc.voteOnReason(2,1,2, {
+    const resGammaSupport = await sc.voteOnReason(2,1,2,1, {
       from: gamma,
     });
 
@@ -358,23 +364,28 @@ contract('Balancing 1', (accounts) => {
 
     sc.setIssue(1);
 
+    sc.setReputation(alpha, 1);
+    sc.setReputation(beta, 1);
+    sc.setReputation(gamma, 1);
+
+
     // not clear how to translate the attack relations to +/- issue
-    const resAlpha = await sc.voteOnReason(2,1,0, {
+    const resAlpha = await sc.voteOnReason(2,1,0,1, {
       from: alpha,
     });
-    const resAlpha2 = await sc.voteOnReason(5,1,0, {
+    const resAlpha2 = await sc.voteOnReason(5,1,0,1, {
       from: gamma,
     });
-    const resBeta = await sc.voteOnReason(3,1,0, {
+    const resBeta = await sc.voteOnReason(3,1,0,1, {
       from: beta,
     });
-    const resBeta2 = await sc.voteOnReason(4,1,0, {
+    const resBeta2 = await sc.voteOnReason(4,1,0,1, {
       from: beta,
     });
-    const resGamma = await sc.voteOnReason(4,1,0, {
+    const resGamma = await sc.voteOnReason(4,1,0,1, {
       from: gamma,
     });
-    const resGamma2 = await sc.voteOnReason(3,1,0, {
+    const resGamma2 = await sc.voteOnReason(3,1,0,1, {
       from: gamma,
     });
 
@@ -487,23 +498,28 @@ contract('Balancing 2', (accounts) => {
     
     sc.setIssue(1);
 
+    sc.setReputation(alpha, 1);
+    sc.setReputation(beta, 1);
+    sc.setReputation(gamma, 1);
+
+
     // not clear how to translate the attack relations to +/- issue
-    const resAlpha = await sc.voteOnReason(1,1,0, {
+    const resAlpha = await sc.voteOnReason(1,1,0,1, {
       from: alpha,
     });
-    const resAlpha2 = await sc.voteOnReason(3,1,0, {
+    const resAlpha2 = await sc.voteOnReason(3,1,0,1, {
       from: gamma,
     });
-    const resBeta = await sc.voteOnReason(3,1,0, {
+    const resBeta = await sc.voteOnReason(3,1,0,1, {
       from: beta,
     });
-    const resBeta2 = await sc.voteOnReason(1,1,0, {
+    const resBeta2 = await sc.voteOnReason(1,1,0,1, {
       from: beta,
     });
-    const resGamma = await sc.voteOnReason(2,1,0, {
+    const resGamma = await sc.voteOnReason(2,1,0,1, {
       from: gamma,
     });
-    const resGamma2 = await sc.voteOnReason(4,1,0, {
+    const resGamma2 = await sc.voteOnReason(4,1,0,1, {
       from: gamma,
     });
 
@@ -558,8 +574,8 @@ contract('Balancing 2', (accounts) => {
 //   { flag: 'a' }
 // );
 
-let epochs = 60;
-let nodes = [5, 10, 15, 20];
+let epochs = 2;
+// let nodes = [5, 10, 15, 20];
 
 for (let i = 0; i < epochs; i++) {
   contract('Balancing N; epoch: ' + i, (accounts) => {
@@ -574,7 +590,7 @@ for (let i = 0; i < epochs; i++) {
     const iota = accounts[8];
     const kappa = accounts[9];
 
-    const nodesNumber = nodes[1];
+    const nodesNumber = 20;//nodes[1];
     let c = 1;
     let ag = 3;
     let voteP = 0.25;
@@ -614,6 +630,10 @@ for (let i = 0; i < epochs; i++) {
 
       sc.setIssue(c);
 
+      sc.setReputation(1, {from: alpha});
+      sc.setReputation(1, {from: beta});
+      sc.setReputation(1, {from: gamma});
+
       for (let j = 0; rs < nodesNumber; j++) {
         cF1 = 0;
         cF2 = 0;
@@ -624,12 +644,12 @@ for (let i = 0; i < epochs; i++) {
             if (p==1) {
               // console.log('p: ' + p);
               if (cF1 == 1) {
-                const res = await sc.voteOnReason(j,c,p, {
+                const res = await sc.voteOnReason(j,c,p,1, {
                   from: accounts[k],
                 }); 
                 // console.log('vote');
               } else if (rs+cF1+cF2 < nodesNumber) {
-                const res = await sc.voteOnReason(j,c,p, {
+                const res = await sc.voteOnReason(j,c,p,1, {
                   from: accounts[k],
                 }); 
                 cF1 = 1;
@@ -639,12 +659,12 @@ for (let i = 0; i < epochs; i++) {
             if (p==2) {
               // console.log('p: ' + p);
               if (cF2 == 1) {
-                const res = await sc.voteOnReason(j,c,p, {
+                const res = await sc.voteOnReason(j,c,p,1, {
                   from: accounts[k],
                 }); 
                 // console.log('vote');
               } else if (rs+cF1+cF2 < nodesNumber) {
-                const res = await sc.voteOnReason(j,c,p, {
+                const res = await sc.voteOnReason(j,c,p,1, {
                   from: accounts[k],
                 }); 
                 cF2 = 1;

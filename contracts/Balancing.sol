@@ -23,13 +23,26 @@ contract Balancing {
         uint256 issue;
     }
 
+    struct Decision {
+        Context context;
+        mapping(uint256 => uint256) weights;
+        uint256 outputPolarity;
+    }
+
     HitchensUnorderedKeySetLib.Set reasonsIds;
     mapping(uint256 => Reason) reasons;
     uint256 issueTBD;
-    Context contextToBeDecided; 
+    Context contextTBD; 
     mapping(uint256 => uint256) weights;
 
+    HitchensUnorderedKeySetLib.Set decisionsIds;
+    mapping(uint256 => Decision) decisions;
+
     mapping(address => HitchensUnorderedKeySetLib.Set) sources;
+
+    mapping(address => uint256) reputations;
+
+    event Output(uint256 key);
 
 
     constructor() public {
@@ -50,7 +63,11 @@ contract Balancing {
 
 // create functon to initialize contract. create access right for admin to set issue and read rights of the discourse.
 
-
+    function setReputation(uint256 rep) 
+        public
+    {
+        reputations[msg.sender] = rep;
+    }
 
     function returnWeight(uint256 r) 
         public
@@ -134,7 +151,7 @@ contract Balancing {
         }
     }
 
-    function voteOnReason(uint256 justification, uint256 issue, uint256 polarity) 
+    function voteOnReason(uint256 justification, uint256 issue, uint256 polarity, uint256 magnitude) 
         public
         returns (int256 re)
     {
@@ -146,7 +163,7 @@ contract Balancing {
             reasons[j].issue == issue && reasons[j].polarity == polarity) {
                 // conclude reason is already in reasons
                 // increase weight by +1
-                weights[j-1]++;
+                weights[j-1] = weights[j-1] + magnitude*reputations[msg.sender];
                 re = 1;
                 break;
             }
@@ -159,7 +176,7 @@ contract Balancing {
             reason.justification = justification;
             reason.issue = issue;
             reason.polarity = polarity;
-            weights[reasonID-1] = 1;
+            weights[reasonID-1] = magnitude*reputations[msg.sender];
     
             HitchensUnorderedKeySetLib.Set storage source = sources[
                 msg.sender
@@ -204,6 +221,24 @@ contract Balancing {
         else {
             sum = 0;
         }
+
+    // untested code for emiting decisionKey
+    // /*
+        // contextTBD.rcount = rs;
+        // contextTBD.reasons = reasons;
+        // contextTBD.issue = issueTBD;
+
+        // uint256 decisionID = decisionsIds.count() + 1;
+        // decisionsIds.insert(bytes32(decisionID));
+        // Decision storage decision = decisions[decisionID];
+        // decision.context = contextTBD;
+        // decision.weights = weights;
+        // decision.outputPolarity = uint256(sum);
+
+        // emit Output(decisionID);
+        // */
+
+        emit Output(42); // ^^'
     }
 
 }
