@@ -17,9 +17,16 @@ contract Balancing {
         uint256 polarity;
     }
 
+    // struct Context {
+    //     uint256 rcount;
+    //     uint256[] reasons;
+    //     uint256 issue;
+    // }
+
     struct Context {
         uint256 rcount;
-        uint256[] reasons;
+        HitchensUnorderedKeySetLib.Set reasonsIds;
+        mapping(uint256 => Reason) reasons;
         uint256 issue;
     }
 
@@ -29,17 +36,16 @@ contract Balancing {
         uint256 outputPolarity;
     }
 
-    HitchensUnorderedKeySetLib.Set reasonsIds;
-    mapping(uint256 => Reason) reasons;
-    uint256 issueTBD;
-    Context contextTBD; 
-    mapping(uint256 => uint256) weights;
+    // HitchensUnorderedKeySetLib.Set reasonsIds;
+    // mapping(uint256 => Reason) reasons;
+    // uint256 issueTBD;
+    // Context contextTBD; 
+    // mapping(uint256 => uint256) weights;
 
     HitchensUnorderedKeySetLib.Set decisionsIds;
     mapping(uint256 => Decision) decisions;
 
     mapping(address => HitchensUnorderedKeySetLib.Set) sources;
-
     mapping(address => uint256) reputations;
 
     event Output(uint256 key);
@@ -49,7 +55,8 @@ contract Balancing {
         // for now constructor sets issue to 0 // this is a bit silly as there will only be one issue in the contract but there can be reasons that are relevant for another issue.
         
         issueTBD = 0;
-        
+        // contextTBD.issue = 0;
+
         //changeWeight(1,1);
 
         // uint256 reasonID = reasonsIds.count() + 1;
@@ -224,21 +231,21 @@ contract Balancing {
 
     // untested code for emiting decisionKey
     // /*
-        // contextTBD.rcount = rs;
+        contextTBD.rcount = rs;
         // contextTBD.reasons = reasons;
-        // contextTBD.issue = issueTBD;
+        contextTBD.issue = issueTBD;
 
-        // uint256 decisionID = decisionsIds.count() + 1;
-        // decisionsIds.insert(bytes32(decisionID));
-        // Decision storage decision = decisions[decisionID];
-        // decision.context = contextTBD;
+        uint256 decisionID = decisionsIds.count() + 1;
+        decisionsIds.insert(bytes32(decisionID));
+        Decision storage decision = decisions[decisionID];
+        decision.context = contextTBD;
         // decision.weights = weights;
-        // decision.outputPolarity = uint256(sum);
+        decision.outputPolarity = uint256(sum);
 
-        // emit Output(decisionID);
+        emit Output(decisionID);
         // */
 
-        emit Output(42); // ^^'
+        // emit Output(42); // ^^'
     }
 
 }
