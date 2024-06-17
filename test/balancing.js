@@ -574,7 +574,7 @@ contract('Balancing 2', (accounts) => {
 //   { flag: 'a' }
 // );
 
-let epochs = 2;
+let epochs = 3;
 // let nodes = [5, 10, 15, 20];
 
 for (let i = 0; i < epochs; i++) {
@@ -593,7 +593,7 @@ for (let i = 0; i < epochs; i++) {
     const nodesNumber = 20;//nodes[1];
     let c = 1;
     let ag = 3;
-    let voteP = 0.25;
+    let voteP = 0.50;
     let rs = 0;
     let cF1 = 0;
     let cF2 = 0;
