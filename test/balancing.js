@@ -601,32 +601,6 @@ for (let i = 0; i < epochs; i++) {
     it('random graphs', async () => {
       const sc = await Balancing.deployed();
 
-      
-
-      // for (let j = 0; j < nodesNumber; j++) {
-      //   await sc.insertArgument(`a`, {
-      //     from: accounts[j % 3],
-      //   });
-      //   for (let k = 1; k <= 2; k++) {
-      //     if (Math.random() < prefP) {
-      //       await sc.supportArgument(j + 1, {
-      //         from: accounts[(j + k) % 3],
-      //       });
-      //     }
-      //   }
-      // }
-
-      // for (let source = 1; source <= nodesNumber; source++) {
-      //   for (let target = 1; target <= nodesNumber; target++) {
-      //     if (Math.random() < edgesP && source != target) {
-      //       await sc.insertAttack(source, target, '');
-      //       edgesNumber++;
-      //     }
-      //   }
-      // }
-
-//###########################################################################
-
 
       sc.setIssue(c);
 
@@ -692,30 +666,6 @@ for (let i = 0; i < epochs; i++) {
       const GasUsed = pa2.receipt.gasUsed;
       console.log(GasUsed);
 
-//###########################################################################
-
-      // //const g = await sc.getGraph(1);
-      // //printGraph(g);
-
-      // const resReduction3 = await sc.pafReductionToAfPr3();
-      // //const r3 = await sc.getGraph(3);
-      // //printGraph(r3);
-      // const reductionGasUsed = resReduction3.receipt.gasUsed;
-      // console.log(reductionGasUsed);
-
-      // const r4 = await sc.enumeratingPreferredExtensions(2);
-      // //r4.logs.forEach((element) => {
-      // //  console.log('*************************************');
-      // //  console.log(element.args.args);
-      // //});
-      // const gasUsed = r4.receipt.gasUsed;
-      // console.log(gasUsed);
-
-      // fs.writeFileSync(
-      //   filepath,
-      //   `${nodesNumber}, ${edgesNumber}, ${edgesP}, ${prefP}, ${reductionGasUsed}, ${gasUsed}\n`,
-      //   { flag: 'a' }
-      // );
 
       fs.writeFileSync(
         filepath,

@@ -49,16 +49,6 @@ contract Balancing {
         // for now constructor sets issue to 0 // this is a bit silly as there will only be one issue in the contract but there can be reasons that are relevant for another issue.
         
         issueTBD = 0;
-        
-        //changeWeight(1,1);
-
-        // uint256 reasonID = reasonsIds.count() + 1;
-        // reasonsIds.insert(bytes32(reasonID));
-        // Reason storage reason = reasons[reasonID];
-        // reason.justification = 0;
-        // reason.issue = 0;
-        // reason.polarity = 0;
-        // weights[reasonID-1] = 42;
     }
 
 // create functon to initialize contract. create access right for admin to set issue and read rights of the discourse.
@@ -116,13 +106,6 @@ contract Balancing {
     	// TODO change to depend on access rights and can only be called at the start
     	if(reasonsIds.count() < 1) {
     	    issueTBD = issue;
-
-            // uint256 reasonID = reasonsIds.count() + 1;
-            // reasonsIds.insert(bytes32(reasonID));
-            // Reason storage reason = reasons[reasonID];
-            // reason.justification = 0;
-            // reason.issue = issue;
-            // reason.polarity = 0;
     	}
     }
 
