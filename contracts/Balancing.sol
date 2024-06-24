@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.5.1;
-// pragma experimental ABIEncoderV2; // experimental feature | do not use in live deployments
+
+pragma experimental ABIEncoderV2; // experimental feature | do not use in live deployments
 
 // import "./DirectedGraph.sol";
 // import "./EnumerableMap.sol";
@@ -12,15 +13,15 @@ contract Balancing {
     using HitchensUnorderedKeySetLib for HitchensUnorderedKeySetLib.Set;
 
     struct Reason {
-        uint256 justification;
-        uint256 issue;
+        string justification;
+        string issue;
         uint256 polarity;
     }
 
     struct Context {
         uint256 rcount;
-        uint256[] reasons;
-        uint256 issue;
+        string[] reasons;
+        string issue;
     }
 
     struct Decision {
@@ -31,7 +32,7 @@ contract Balancing {
 
     HitchensUnorderedKeySetLib.Set reasonsIds;
     mapping(uint256 => Reason) reasons;
-    uint256 issueTBD;
+    string issueTBD;
     Context contextTBD; 
     mapping(uint256 => uint256) weights;
 
@@ -42,16 +43,21 @@ contract Balancing {
 
     mapping(address => uint256) reputations;
 
-    event Output(uint256 key);
+    // event Output(uint256 key);
+    event Output(string reasons, string issue, uint256 polarity);
 
 
     constructor() public {
         // for now constructor sets issue to 0 // this is a bit silly as there will only be one issue in the contract but there can be reasons that are relevant for another issue.
         
-        issueTBD = 0;
+        issueTBD = '0';
     }
 
 // create functon to initialize contract. create access right for admin to set issue and read rights of the discourse.
+
+    function compareStrings(string memory a, string memory b) public view returns (bool) {
+        return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))));
+    }
 
     function setReputation(uint256 rep) 
         public
@@ -67,11 +73,11 @@ contract Balancing {
         weight = weights[r];
     }
 
-    function changeWeight(uint256 reason, uint256 newWeight) 
+    function changeWeight(uint256 reasonID, uint256 newWeight) 
         public
     {
-        assert(reason != 0);
-        weights[reason] = newWeight;
+        assert(reasonID != 0);
+        weights[reasonID] = newWeight;
     }
 
     function getWeights()
@@ -95,16 +101,16 @@ contract Balancing {
     function getIssue()
         public
         view
-        returns ( uint256 )
+        returns ( string memory)
     {
         return issueTBD;
     }
     
-    function setIssue(uint256 issue)
+    function setIssue(string memory issue)
     	public
     {
     	// TODO change to depend on access rights and can only be called at the start
-    	if(reasonsIds.count() < 1) {
+    	if(true) {
     	    issueTBD = issue;
     	}
     }
@@ -113,16 +119,16 @@ contract Balancing {
         public
         view
         returns (
-            uint256[] memory justifications,
-            uint256[] memory issues,
+            string[] memory justifications,
+            string[] memory issues,
             uint256[] memory polarities
         )
     {
         
         uint256 reasonsCount = reasonsIds.count();
 
-        justifications = new uint256[](reasonsCount);
-        issues = new uint256[](reasonsCount);
+        justifications = new string[](reasonsCount);
+        issues = new string[](reasonsCount);
         polarities = new uint256[](reasonsCount);
 
         for (uint256 i = 0; i < reasonsIds.count(); i++) {
@@ -134,7 +140,7 @@ contract Balancing {
         }
     }
 
-    function voteOnReason(uint256 justification, uint256 issue, uint256 polarity, uint256 magnitude) 
+    function voteOnReason(string memory justification, string memory issue, uint256 polarity, uint256 magnitude) 
         public
         returns (int256 re)
     {
@@ -142,8 +148,8 @@ contract Balancing {
         re = 0;
         // check that reason is not known yet.
         for (uint256 j = 1; j < reasonsIds.count() + 1; j++) {
-            if (reasons[j].justification == justification && 
-            reasons[j].issue == issue && reasons[j].polarity == polarity) {
+            if (compareStrings(reasons[j].justification, justification) && 
+            compareStrings(reasons[j].issue, issue) && reasons[j].polarity == polarity) {
                 // conclude reason is already in reasons
                 // increase weight by +1
                 weights[j-1] = weights[j-1] + magnitude*reputations[msg.sender];
@@ -177,13 +183,16 @@ contract Balancing {
     {
 
         sum = 0;
+        string memory cs = '';
         uint256 rs = reasonsIds.count();        
         for (uint256 i = 0; i < rs; i++){
                 
             uint256 reasonId = uint256(reasonsIds.keyAtIndex(i));
             Reason storage reason = reasons[reasonId];
+            
+            cs = string(abi.encodePacked(cs, " ", i, " ", reason.justification));
 
-            if (reason.issue == issueTBD) {
+            if (compareStrings(reason.issue, issueTBD)) {
                 if (reason.polarity == 0) { // condition polarity is ?
                     continue;
                 }
@@ -194,7 +203,9 @@ contract Balancing {
                     sum += int256(weights[i]);
                 }
             }
-        }   
+
+        }  
+         
         if (sum > 0) {
             sum = 2;
         }
@@ -221,7 +232,8 @@ contract Balancing {
         // emit Output(decisionID);
         // */
 
-        emit Output(42); // ^^'
+        // emit Output(42); // ^^'
+        emit Output(cs ,issueTBD, uint256(sum));
     }
 
 }

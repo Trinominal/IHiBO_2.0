@@ -83,7 +83,7 @@ const printWeights = (W) => {
 // };
 
 
-const printValuation = (p, issue = 0) => {
+const printValuation = (p, issue) => {
   console.log('-------Valuations-------');
 
   const V = ['?', '-', '+'];
@@ -91,7 +91,7 @@ const printValuation = (p, issue = 0) => {
 
   assert(p<3);
   const valuation = V[p];
-  console.log('issue: ' + issue + '; valuated at: ' + valuation);    
+  console.log('issue: ' + issue.toString() + '; valuated at: ' + valuation);    
 
   
   console.log('------------------------');
@@ -590,8 +590,8 @@ for (let i = 0; i < epochs; i++) {
     const iota = accounts[8];
     const kappa = accounts[9];
 
-    const nodesNumber = 20;//nodes[1];
-    let c = 1;
+    const nodesNumber = 5;//nodes[1];
+    let c = '1';
     let ag = 3;
     let voteP = 0.50;
     let rs = 0;
@@ -618,12 +618,12 @@ for (let i = 0; i < epochs; i++) {
             if (p==1) {
               // console.log('p: ' + p);
               if (cF1 == 1) {
-                const res = await sc.voteOnReason(j,c,p,1, {
+                const res = await sc.voteOnReason(String(j),String(c),p,1, {
                   from: accounts[k],
                 }); 
                 // console.log('vote');
               } else if (rs+cF1+cF2 < nodesNumber) {
-                const res = await sc.voteOnReason(j,c,p,1, {
+                const res = await sc.voteOnReason(String(j),String(c),p,1, {
                   from: accounts[k],
                 }); 
                 cF1 = 1;
@@ -633,12 +633,12 @@ for (let i = 0; i < epochs; i++) {
             if (p==2) {
               // console.log('p: ' + p);
               if (cF2 == 1) {
-                const res = await sc.voteOnReason(j,c,p,1, {
+                const res = await sc.voteOnReason(String(j),String(c),p,1, {
                   from: accounts[k],
                 }); 
                 // console.log('vote');
               } else if (rs+cF1+cF2 < nodesNumber) {
-                const res = await sc.voteOnReason(j,c,p,1, {
+                const res = await sc.voteOnReason(String(j),String(c),p,1, {
                   from: accounts[k],
                 }); 
                 cF2 = 1;
