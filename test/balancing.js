@@ -574,8 +574,9 @@ contract('Balancing 2', (accounts) => {
 //   { flag: 'a' }
 // );
 
-let epochs = 3;
-// let nodes = [5, 10, 15, 20];
+let epochs = 5;
+let nodes = [5, 10, 15, 20];
+let nod = 0;
 
 for (let i = 0; i < epochs; i++) {
   contract('Balancing N; epoch: ' + i, (accounts) => {
@@ -590,10 +591,10 @@ for (let i = 0; i < epochs; i++) {
     const iota = accounts[8];
     const kappa = accounts[9];
 
-    const nodesNumber = 5;//nodes[1];
+    const nodesNumber = nodes[nod];
     let c = '1';
     let ag = 3;
-    let voteP = 0.50;
+    let voteP = 0.8;
     let rs = 0;
     let cF1 = 0;
     let cF2 = 0;
@@ -611,43 +612,94 @@ for (let i = 0; i < epochs; i++) {
       for (let j = 0; rs < nodesNumber; j++) {
         cF1 = 0;
         cF2 = 0;
+        cF3 = 0;
         for (let k = 0; k < ag; k++) {
           if (Math.random() < voteP) {
             // console.log('k: ' + k);
-            let p = Math.round(Math.random()) + 1;
-            if (p==1) {
+            let p = Math.random();
+            // negative -- reason
+            if (p < 0.2) {
               // console.log('p: ' + p);
               if (cF1 == 1) {
-                const res = await sc.voteOnReason(String(j),String(c),p,1, {
+                const res = await sc.voteOnReason(String(j),String(c),1,2, {
                   from: accounts[k],
                 }); 
                 // console.log('vote');
-              } else if (rs+cF1+cF2 < nodesNumber) {
-                const res = await sc.voteOnReason(String(j),String(c),p,1, {
+              } else if (rs+cF1+cF2+cF3 < nodesNumber) {
+                const res = await sc.voteOnReason(String(j),String(c),1,2, {
                   from: accounts[k],
                 }); 
                 cF1 = 1;
                 // console.log('create');
               }
             }
-            if (p==2) {
+            // negative - reason
+            else if (p < 0.4) {
               // console.log('p: ' + p);
-              if (cF2 == 1) {
-                const res = await sc.voteOnReason(String(j),String(c),p,1, {
+              if (cF1 == 1) {
+                const res = await sc.voteOnReason(String(j),String(c),1,1, {
                   from: accounts[k],
                 }); 
                 // console.log('vote');
-              } else if (rs+cF1+cF2 < nodesNumber) {
-                const res = await sc.voteOnReason(String(j),String(c),p,1, {
+              } else if (rs+cF1+cF2+cF3 < nodesNumber) {
+                const res = await sc.voteOnReason(String(j),String(c),1,1, {
+                  from: accounts[k],
+                }); 
+                cF1 = 1;
+                // console.log('create');
+              }
+            }
+            // neutral 0 reason
+            else if (p < 0.6) {
+              // console.log('p: ' + p);
+              if (cF2 == 1) {
+                const res = await sc.voteOnReason(String(j),String(c),0,1, {
+                  from: accounts[k],
+                }); 
+                // console.log('vote');
+              } else if (rs+cF1+cF2+cF3 < nodesNumber) {
+                const res = await sc.voteOnReason(String(j),String(c),0,1, {
                   from: accounts[k],
                 }); 
                 cF2 = 1;
                 // console.log('create');
               }
             }
+            // positive + reason
+            else if (p < 0.8) {
+              // console.log('p: ' + p);
+              if (cF4 == 1) {
+                const res = await sc.voteOnReason(String(j),String(c),2,1, {
+                  from: accounts[k],
+                }); 
+                // console.log('vote');
+              } else if (rs+cF1+cF2+cF3 < nodesNumber) {
+                const res = await sc.voteOnReason(String(j),String(c),2,1, {
+                  from: accounts[k],
+                }); 
+                cF4 = 1;
+                // console.log('create');
+              }
+            }
+            // positive ++ reason
+            else {
+              // console.log('p: ' + p);
+              if (cF3 == 1) {
+                const res = await sc.voteOnReason(String(j),String(c),2,2, {
+                  from: accounts[k],
+                }); 
+                // console.log('vote');
+              } else if (rs+cF1+cF2+cF3 < nodesNumber) {
+                const res = await sc.voteOnReason(String(j),String(c),2,2, {
+                  from: accounts[k],
+                }); 
+                cF3 = 1;
+                // console.log('create');
+              }
+            }
           }
         }
-        rs += cF1 + cF2;
+        rs += cF1 + cF2 + cF3;
       }
 
       const reasons = await sc.getReasons();

@@ -183,6 +183,7 @@ contract Balancing {
     {
 
         sum = 0;
+        int256 neut = 0;
         string memory cs = '';
         uint256 rs = reasonsIds.count();        
         for (uint256 i = 0; i < rs; i++){
@@ -194,7 +195,7 @@ contract Balancing {
 
             if (compareStrings(reason.issue, issueTBD)) {
                 if (reason.polarity == 0) { // condition polarity is ?
-                    continue;
+                    neut += int256(weights[i]);
                 }
                 else if (reason.polarity == 1) { // condition polarity -
                     sum -= int256(weights[i]);
@@ -205,15 +206,15 @@ contract Balancing {
             }
 
         }  
-         
-        if (sum > 0) {
-            sum = 2;
+
+        if (sum > neut) {
+            sum = 2; // -> output +
         }
-        else if (sum < 0) {
-            sum = 1;
+        else if (sum < -neut) {
+            sum = 1; // -> output 1
         }
         else {
-            sum = 0;
+            sum = 0; // -> output 0
         }
 
     // untested code for emiting decisionKey

@@ -13,6 +13,9 @@ gasMeasurementsNeg = []
 gasMeasurementsOff = []
 gasMeasurementsAcc = []
 
+gasMeasurementsAdd = []
+tmpGasAdd = []
+
 
 def plot11():
     fig, _ = plt.subplots(nrows=1, ncols=1, constrained_layout=True)
@@ -197,6 +200,110 @@ def plot32():
     # plt.show()
     plt.savefig('./gas-cost32.png', bbox_inches='tight', dpi=300)
 
+def plot41():
+    fig, _ = plt.subplots(nrows=1, ncols=1, constrained_layout=True)
+    fig.set_size_inches(7, 5)
+    # blue_patch = mpatches.Patch(
+    #     color='tab:blue', label='Enumerating Preferred Extensions of AF method')
+    # red_patch = mpatches.Patch(
+    #     color='tab:red', label='Reductions of PAF to AF method')
+    patches = mpatches.Patch(
+        label='Additive Method of Balancing')
+
+    sxrange = []
+    width = 0.4
+    j = -1
+    for i in range(len(gasMeasurementsAdd)):
+        if i % 3 == 0:
+            j += 1.2
+            sxrange.append(i - j + .9 - width)
+        elif i % 3 == 1:
+            sxrange.append(i - j)
+        else:
+            sxrange.append(i - j - .9 + width)
+
+    sxrange = np.array(sxrange)
+    # print(sxrange)
+
+    plt.ylabel('Gas Cost', fontsize=12)
+    # plt.title('Balancing Gas Cost', fontdict={'fontsize': 16}, weight='heavy')
+    plt.bar(sxrange - (width/4), gasMeasurementsAdd, (width/2),
+            align='center')
+    plt.xticks(sxrange, ['5 nodes',
+                         '10 nodes',
+                         '15 nodes',
+                         '20 nodes'])
+    # plt.xlabel('Edge (i.e. attack) Formation Probability (p)', fontsize=12)
+
+    plt.legend(handles=[patches], fontsize='large')
+    plt.show()
+    plt.savefig('./gas-cost41.png', bbox_inches='tight', dpi=300)
+
+def plot40():
+    fig, _ = plt.subplots(nrows=1, ncols=1, constrained_layout=True)
+    fig.set_size_inches(10, 5)
+    blue_patch = mpatches.Patch(
+        color='tab:blue', label='Enumerating Preferred Extensions of AF method')
+    red_patch = mpatches.Patch(
+        color='tab:red', label='Reductions of PAF to AF method')
+    green_patch = mpatches.Patch(
+        color='tab:green',label='Additive Method of Balancing')
+
+    sxrange = []
+    width = 0.4
+    j = -1
+    for i in range(len(gasMeasurementsRed)+4):
+        if i % 4 == 0:
+            j += 1.2
+            sxrange.append(i - j + .9 - width)
+        elif i % 4 == 1:
+            sxrange.append(i - j)
+        else:
+            sxrange.append(i - j - .9 + width)
+
+    cntr = 0
+    new_sxrange1 = []
+    for i in sxrange:
+        if(cntr % 4 != 3):
+            new_sxrange1.append(i)
+        # incrementing counter
+        cntr += 1
+
+    print(sxrange)
+    print(new_sxrange1)
+ 
+    cntr = 0
+    new_sxrange2 = [sxrange[3],sxrange[7],sxrange[11],sxrange[15]]
+
+ 
+
+    sxrange = np.array(sxrange)
+    new_sxrange1 = np.array(new_sxrange1)
+    new_sxrange2 = np.array(new_sxrange2)
+    print(sxrange)
+    print(new_sxrange1)
+    print(new_sxrange2)
+    # print(gasMeasurementsAdd)
+    # print(gasMeasurementsRed)
+
+    plt.ylabel('Gas Cost', fontsize=12)
+    # plt.title('Argumentation Gas Cost', fontdict={'fontsize': 16}, weight='heavy')
+    plt.bar(new_sxrange1 - (width/4), gasMeasurementsRed, (width/2), color='tab:red',
+            align='center')
+    plt.bar(new_sxrange1 + (width/4), gasMeasurementsExt, (width/2), color='tab:blue',
+            align='center')
+    plt.bar(new_sxrange2, gasMeasurementsAdd, (width/2), color='tab:green',
+            align='center')
+    plt.xticks(sxrange, ['0.33\n', '0.5\n5 nodes\n(i.e. arguments)', '0.66\n', 'add\n',
+                         '0.33\n', '0.5\n10 nodes\n(i.e. arguments)', '0.66\n', 'add\n', 
+                         '0.33\n', '0.5\n15 nodes\n(i.e. arguments)', '0.66\n', 'add\n',
+                         '0.33\n', '0.5\n20 nodes\n(i.e. arguments)', '0.66\n', 'add\n'])
+    plt.xlabel('Edge (i.e. attack) Formation Probability (p)', fontsize=12)
+
+    plt.legend(handles=[blue_patch, red_patch, green_patch], fontsize='large')
+    plt.show()
+    plt.savefig('./gas-cost40.png', bbox_inches='tight', dpi=300)
+
 
 # with open('data.csv', 'r') as csvFile:
 #     reader = csv.reader(csvFile)
@@ -235,29 +342,93 @@ def plot32():
 #     # plot21()
 #     plot22()
 
-with open('data3.csv', 'r') as csvFile:
-    reader = csv.reader(csvFile)
-    next(reader)
-    nodesTmp = 5
-    edgesPTmp = 0.33
-    for row in reader:
-        nodesNumber = int(row[0])
-        edgesNumber = int(row[1])
-        edgesP = float(row[2])
-        prefP = float(row[3])
-        reductionPref3 = int(row[4])
-        prefExtensionsGas = int(row[5])
+# with open('data3.csv', 'r') as csvFile:
+#     reader = csv.reader(csvFile)
+#     next(reader)
+#     nodesTmp = 5
+#     edgesPTmp = 0.33
+#     for row in reader:
+#         nodesNumber = int(row[0])
+#         edgesNumber = int(row[1])
+#         edgesP = float(row[2])
+#         prefP = float(row[3])
+#         reductionPref3 = int(row[4])
+#         prefExtensionsGas = int(row[5])
 
-        if (nodesNumber != nodesTmp or edgesP != edgesPTmp):
-            nodesTmp = nodesNumber
-            edgesPTmp = edgesP
-            gasMeasurementsRed.append(np.mean(tmpGasRed))
-            gasMeasurementsExt.append(np.mean(tmpGasExt))
-            tmpGasRed = []
-            tmpGasExt = []
-        tmpGasRed.append(reductionPref3)
-        tmpGasExt.append(prefExtensionsGas)
-    gasMeasurementsRed.append(np.mean(tmpGasRed))
-    gasMeasurementsExt.append(np.mean(tmpGasExt))
-    plot31()
-    plot32()
+#         if (nodesNumber != nodesTmp or edgesP != edgesPTmp):
+#             nodesTmp = nodesNumber
+#             edgesPTmp = edgesP
+#             gasMeasurementsRed.append(np.mean(tmpGasRed))
+#             gasMeasurementsExt.append(np.mean(tmpGasExt))
+#             tmpGasRed = []
+#             tmpGasExt = []
+#         tmpGasRed.append(reductionPref3)
+#         tmpGasExt.append(prefExtensionsGas)
+#     gasMeasurementsRed.append(np.mean(tmpGasRed))
+#     gasMeasurementsExt.append(np.mean(tmpGasExt))
+#     plot31()
+#     plot32()
+
+# with open('data4.csv', 'r') as csvFile:
+#     reader = csv.reader(csvFile)
+#     next(reader)
+#     nodesTmp = 5
+#     votePTmp = 0.5
+#     for row in reader:
+#         nodesNumber = int(row[0])
+#         voteP = float(row[1])
+#         additiveGas = int(row[2])
+
+#         if (nodesNumber != nodesTmp or voteP != votePTmp):
+#             nodesTmp = nodesNumber
+#             votePTmp = voteP
+#             gasMeasurementsAdd.append(np.mean(tmpGasAdd))
+#             tmpGasAdd = []
+#         tmpGasAdd.append(additiveGas)
+#     gasMeasurementsAdd.append(np.mean(tmpGasAdd))
+#     plot41()
+#     # plot42()
+
+
+with open('data.csv', 'r') as csvFile1, open('data4.csv', 'r') as csvFile2:
+        reader1 = csv.reader(csvFile1)
+        reader2 = csv.reader(csvFile2)
+        next(reader1)
+        next(reader2)
+        nodesTmp1 = 5
+        nodesTmp2 = 5
+        edgesPTmp = 0.33
+        votePTmp = 0.5
+        for row1, row2 in zip(reader1,reader2):
+            nodesNumber1 = int(row1[0])
+            edgesNumber = int(row1[1])
+            edgesP = float(row1[2])
+            prefP = float(row1[3])
+            reductionPref3 = int(row1[4])
+            prefExtensionsGas = int(row1[5])
+
+            nodesNumber2 = int(row2[0])
+            voteP = float(row2[1])
+            additiveGas = int(row2[2])
+
+            if (nodesNumber1 != nodesTmp1 or edgesP != edgesPTmp):
+                nodesTmp1 = nodesNumber1
+                edgesPTmp = edgesP
+                votePTmp = voteP
+                gasMeasurementsRed.append(np.mean(tmpGasRed))
+                gasMeasurementsExt.append(np.mean(tmpGasExt))
+                tmpGasRed = []
+                tmpGasExt = []
+            if (nodesNumber2 != nodesTmp2 or voteP != votePTmp):
+                nodesTmp2 = nodesNumber2
+                votePTmp = voteP
+                gasMeasurementsAdd.append(np.mean(tmpGasAdd))
+                tmpGasAdd = []
+            tmpGasRed.append(reductionPref3)
+            tmpGasExt.append(prefExtensionsGas)
+            tmpGasAdd.append(additiveGas)
+        gasMeasurementsRed.append(np.mean(tmpGasRed))
+        gasMeasurementsExt.append(np.mean(tmpGasExt))
+        gasMeasurementsAdd.append(np.mean(tmpGasAdd))
+        # plot41()
+        plot40()
