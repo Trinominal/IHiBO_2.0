@@ -15,7 +15,7 @@ contract Balancing {
     struct Reason {
         string justification;
         string issue;
-        uint256 polarity;
+        string polarity;
     }
 
     struct Context {
@@ -36,15 +36,15 @@ contract Balancing {
     Context contextTBD; 
     mapping(uint256 => uint256) weights;
 
-    HitchensUnorderedKeySetLib.Set decisionsIds;
-    mapping(uint256 => Decision) decisions;
+    // HitchensUnorderedKeySetLib.Set decisionsIds;
+    // mapping(uint256 => Decision) decisions;
 
     mapping(address => HitchensUnorderedKeySetLib.Set) sources;
 
     mapping(address => uint256) reputations;
 
     // event Output(uint256 key);
-    event Output(string reasons, string issue, uint256 polarity);
+    event Output(string reasons, string issue, string polarity);
 
 
     constructor() public {
@@ -55,14 +55,39 @@ contract Balancing {
 
 // create functon to initialize contract. create access right for admin to set issue and read rights of the discourse.
 
+	function convertToString(uint256 value) internal pure returns (string memory) {
+		if (value == 0) {
+			return "0";
+		}
+
+		uint256 temp = value;
+		uint256 digits;
+
+		while (temp != 0) {
+			digits++;
+			temp /= 10;
+		}
+
+		bytes memory buffer = new bytes(digits);
+
+		while (value != 0) {
+			digits--;
+			buffer[digits] = bytes1(uint8(48 + (value % 10)));
+			value /= 10;
+		}
+
+		return string(buffer);
+	}
+
     function compareStrings(string memory a, string memory b) public view returns (bool) {
         return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))));
     }
 
-    function setReputation(uint256 rep) 
+    function setReputation(uint256 rep, address subject) 
         public
     {
-        reputations[msg.sender] = rep;
+        assert(msg.sender!=subject);
+        reputations[subject] = rep;
     }
 
     function returnWeight(uint256 r) 
@@ -121,7 +146,7 @@ contract Balancing {
         returns (
             string[] memory justifications,
             string[] memory issues,
-            uint256[] memory polarities
+            string[] memory polarities
         )
     {
         
@@ -129,7 +154,7 @@ contract Balancing {
 
         justifications = new string[](reasonsCount);
         issues = new string[](reasonsCount);
-        polarities = new uint256[](reasonsCount);
+        polarities = new string[](reasonsCount);
 
         for (uint256 i = 0; i < reasonsIds.count(); i++) {
             uint256 reasonId = uint256(reasonsIds.keyAtIndex(i));
@@ -140,7 +165,13 @@ contract Balancing {
         }
     }
 
-    function voteOnReason(string memory justification, string memory issue, uint256 polarity, uint256 magnitude) 
+    function voteOnReason
+    (
+        string memory justification, 
+        string memory issue, 
+        string memory polarity, 
+        uint256 magnitude
+    ) 
         public
         returns (int256 re)
     {
@@ -149,7 +180,8 @@ contract Balancing {
         // check that reason is not known yet.
         for (uint256 j = 1; j < reasonsIds.count() + 1; j++) {
             if (compareStrings(reasons[j].justification, justification) && 
-            compareStrings(reasons[j].issue, issue) && reasons[j].polarity == polarity) {
+            compareStrings(reasons[j].issue, issue) && 
+            compareStrings(reasons[j].polarity, polarity)) {
                 // conclude reason is already in reasons
                 // increase weight by +1
                 weights[j-1] = weights[j-1] + magnitude*reputations[msg.sender];
@@ -179,13 +211,21 @@ contract Balancing {
     function procedureAdditive()
         public
         // view 
-        returns (int256 sum)
+        returns (string memory dec)
     {
 
-        sum = 0;
-        int256 neut = 0;
+        dec = '';
+        uint256 magn = 0;
+        uint256 pos = 0;
+        uint256 ppos = 0;
+        uint256 neg = 0;
+        uint256 nneg = 0;
+        int256 sum = 0;
+        uint256 neut = 0;
         string memory cs = '';
-        uint256 rs = reasonsIds.count();        
+        uint256 rs = reasonsIds.count();   
+
+
         for (uint256 i = 0; i < rs; i++){
                 
             uint256 reasonId = uint256(reasonsIds.keyAtIndex(i));
@@ -194,28 +234,78 @@ contract Balancing {
             cs = string(abi.encodePacked(cs, " ", i, " ", reason.justification));
 
             if (compareStrings(reason.issue, issueTBD)) {
-                if (reason.polarity == 0) { // condition polarity is ?
-                    neut += int256(weights[i]);
+                if (compareStrings(reason.polarity, '0')) { 
+                    neut += uint256(weights[i]);
                 }
-                else if (reason.polarity == 1) { // condition polarity -
-                    sum -= int256(weights[i]);
+                else if (compareStrings(reason.polarity, '-')) { 
+                    neg += uint256(weights[i]);
                 }
-                else if (reason.polarity == 2) { // condition polarity +
-                    sum += int256(weights[i]);
+                else if (compareStrings(reason.polarity, '+')) { 
+                    pos += uint256(weights[i]);
+                }
+                else if (compareStrings(reason.polarity, '--')) { 
+                    nneg += uint256(weights[i]);
+                }
+                else if (compareStrings(reason.polarity, '++')) { 
+                    ppos += uint256(weights[i]);
                 }
             }
-
         }  
 
-        if (sum > neut) {
-            sum = 2; // -> output +
+        sum = int256(pos) + 2*int256(ppos) - (int256(neg) + 2*int256(nneg));
+        magn = sum < 0 ? uint256(-sum) : uint256(sum);
+
+        // pos += 2*ppos;
+        // neg += 2*nneg;
+        // magn = pos > neg ? pos - neg : neg - pos;
+        // magn = 2*magn < neut ? neut-magn : (2*magn-neut)/2;
+        // string memory Magn = convertToString(magn);
+
+        if (!(2*magn > neut)) {
+            magn = neut;
+            string memory Magn = convertToString(magn);
+            dec = string(abi.encodePacked(dec, '(', Magn, ', ', '0', ')'));
+            // dec = string(magn + '0');
+            // dec = '0';
         }
-        else if (sum < -neut) {
-            sum = 1; // -> output 1
+        else if (sum > 0 && ppos > pos) {
+            // 2*pos > 2*(neut+2*neg)) {
+            magn = ppos;
+            string memory Magn = convertToString(magn);
+            dec = string(abi.encodePacked(dec, '(', Magn, ', ', '++', ')'));
+            // dec = string(magn + '++');
+            // dec = '++';
+        }
+        else if (sum > 0) {
+            // 2*pos > neut+2*neg) {
+            magn = pos;
+            string memory Magn = convertToString(magn);
+            dec = string(abi.encodePacked(dec, '(', Magn, ', ', '+', ')'));
+            // dec = string(magn + '+');
+            // dec = '+';
+        }
+        else if (sum < 0 && nneg > neg) {
+            // 2*neg > 2*(neut+2*pos)) {
+            magn = nneg;
+            string memory Magn = convertToString(magn);
+            dec = string(abi.encodePacked(dec, '(', Magn, ', ', '--', ')'));
+            // dec = string(magn + '--');
+            // dec = '--';
+        }
+        else if (sum < 0) {
+            // 2*neg > neut+2*pos) {
+            magn = neg;
+            string memory Magn = convertToString(magn);
+            dec = string(abi.encodePacked(dec, '(', Magn, ', ', '-', ')'));
+            // dec = string(magn + '-');
+            // dec = '-';
         }
         else {
-            sum = 0; // -> output 0
+            magn = 0;
+            string memory Magn = convertToString(magn);
+            dec = string(abi.encodePacked(dec, '(', Magn, ', ', '0', ')'));
         }
+
 
     // untested code for emiting decisionKey
     // /*
@@ -234,7 +324,9 @@ contract Balancing {
         // */
 
         // emit Output(42); // ^^'
-        emit Output(cs ,issueTBD, uint256(sum));
+        emit Output(cs ,issueTBD, dec);
+
+        return dec;
     }
 
 }

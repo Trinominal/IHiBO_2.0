@@ -9,10 +9,10 @@ const filepath = './data4.csv';
 const printReasons = (R) => {
   console.log('--------Reasons--------');
 
-  const V = ['?', '-', '+'];
+  // const V = ['?', '-', '+'];
 
   for (let i = 0; i < R.justifications.length; i++) {
-    if (R.polarities[i] == 0 || R.polarities[i] == 1 || R.polarities[i] == 2 ) {
+    // if (R.polarities[i] == 0 || R.polarities[i] == 1 || R.polarities[i] == 2 ) {
       let x = "x";
       let y = "y";
       let r = "r";
@@ -20,13 +20,17 @@ const printReasons = (R) => {
       y += R.issues[i].toString();
       r += i.toString();
 
+      // console.log(
+      //   r,
+      //   ' =  (' + x + ', ' +  y + ', ' + V[R.polarities[i]] + ')'
+      // );
       console.log(
         r,
-        ' =  (' + x + ', ' +  y + ', ' + V[R.polarities[i]] + ')'
+        ' =  (' + x + ', ' +  y + ', ' + R.polarities[i] + ')'
       );
-    } else {
-      console.log("NaR: Not available Reason");
-    }
+    // } else {
+    //   console.log("NaR: Not available Reason");
+    // }
   }
   console.log('-----------------------');
 };
@@ -89,10 +93,10 @@ const printValuation = (p, issue) => {
   const V = ['?', '-', '+'];
 
 
-  assert(p<3);
-  const valuation = V[p];
-  console.log('issue: ' + issue.toString() + '; valuated at: ' + valuation);    
-
+  // assert(p<3);
+  // const valuation = V[p];
+  // console.log('issue: ' + issue.toString() + '; valuated at: ' + valuation);    
+  console.log('issue: ' + issue.toString() + '; valuated at: ' + p);    
   
   console.log('------------------------');
 };
@@ -574,9 +578,12 @@ contract('Balancing 2', (accounts) => {
 //   { flag: 'a' }
 // );
 
-let epochs = 5;
+
 let nodes = [5, 10, 15, 20];
-let nod = 0;
+let nod = 3;
+let epochs = 2;
+// let epochs = Math.floor(30/nodes[nod]);
+// let epochs = 60;
 
 for (let i = 0; i < epochs; i++) {
   contract('Balancing N; epoch: ' + i, (accounts) => {
@@ -594,7 +601,7 @@ for (let i = 0; i < epochs; i++) {
     const nodesNumber = nodes[nod];
     let c = '1';
     let ag = 3;
-    let voteP = 0.8;
+    let voteP = 0.65;
     let rs = 0;
     let cF1 = 0;
     let cF2 = 0;
@@ -605,14 +612,16 @@ for (let i = 0; i < epochs; i++) {
 
       sc.setIssue(c);
 
-      sc.setReputation(1, {from: alpha});
-      sc.setReputation(1, {from: beta});
-      sc.setReputation(1, {from: gamma});
-
+      sc.setReputation(1, alpha, {from: iota});
+      sc.setReputation(1, beta, {from: iota});
+      sc.setReputation(1, gamma, {from: iota});
+  
       for (let j = 0; rs < nodesNumber; j++) {
         cF1 = 0;
         cF2 = 0;
         cF3 = 0;
+        cF4 = 0;
+        cF5 = 0;
         for (let k = 0; k < ag; k++) {
           if (Math.random() < voteP) {
             // console.log('k: ' + k);
@@ -621,12 +630,12 @@ for (let i = 0; i < epochs; i++) {
             if (p < 0.2) {
               // console.log('p: ' + p);
               if (cF1 == 1) {
-                const res = await sc.voteOnReason(String(j),String(c),1,2, {
+                const res = await sc.voteOnReason(String(j),String(c),'--',1, {
                   from: accounts[k],
                 }); 
                 // console.log('vote');
-              } else if (rs+cF1+cF2+cF3 < nodesNumber) {
-                const res = await sc.voteOnReason(String(j),String(c),1,2, {
+              } else if (rs+cF1+cF2+cF3+cF4+cF5 < nodesNumber) {
+                const res = await sc.voteOnReason(String(j),String(c),'--',1, {
                   from: accounts[k],
                 }); 
                 cF1 = 1;
@@ -636,32 +645,32 @@ for (let i = 0; i < epochs; i++) {
             // negative - reason
             else if (p < 0.4) {
               // console.log('p: ' + p);
-              if (cF1 == 1) {
-                const res = await sc.voteOnReason(String(j),String(c),1,1, {
+              if (cF2 == 1) {
+                const res = await sc.voteOnReason(String(j),String(c),'-',1, {
                   from: accounts[k],
                 }); 
                 // console.log('vote');
-              } else if (rs+cF1+cF2+cF3 < nodesNumber) {
-                const res = await sc.voteOnReason(String(j),String(c),1,1, {
+              } else if (rs+cF1+cF2+cF3+cF4+cF5 < nodesNumber) {
+                const res = await sc.voteOnReason(String(j),String(c),'-',1, {
                   from: accounts[k],
                 }); 
-                cF1 = 1;
+                cF2 = 1;
                 // console.log('create');
               }
             }
             // neutral 0 reason
             else if (p < 0.6) {
               // console.log('p: ' + p);
-              if (cF2 == 1) {
-                const res = await sc.voteOnReason(String(j),String(c),0,1, {
+              if (cF3 == 1) {
+                const res = await sc.voteOnReason(String(j),String(c),'0',1, {
                   from: accounts[k],
                 }); 
                 // console.log('vote');
-              } else if (rs+cF1+cF2+cF3 < nodesNumber) {
-                const res = await sc.voteOnReason(String(j),String(c),0,1, {
+              } else if (rs+cF1+cF2+cF3+cF4+cF5 < nodesNumber) {
+                const res = await sc.voteOnReason(String(j),String(c),'0',1, {
                   from: accounts[k],
                 }); 
-                cF2 = 1;
+                cF3 = 1;
                 // console.log('create');
               }
             }
@@ -669,12 +678,12 @@ for (let i = 0; i < epochs; i++) {
             else if (p < 0.8) {
               // console.log('p: ' + p);
               if (cF4 == 1) {
-                const res = await sc.voteOnReason(String(j),String(c),2,1, {
+                const res = await sc.voteOnReason(String(j),String(c),'+',1, {
                   from: accounts[k],
                 }); 
                 // console.log('vote');
-              } else if (rs+cF1+cF2+cF3 < nodesNumber) {
-                const res = await sc.voteOnReason(String(j),String(c),2,1, {
+              } else if (rs+cF1+cF2+cF3+cF4+cF5 < nodesNumber) {
+                const res = await sc.voteOnReason(String(j),String(c),'+',1, {
                   from: accounts[k],
                 }); 
                 cF4 = 1;
@@ -684,22 +693,22 @@ for (let i = 0; i < epochs; i++) {
             // positive ++ reason
             else {
               // console.log('p: ' + p);
-              if (cF3 == 1) {
-                const res = await sc.voteOnReason(String(j),String(c),2,2, {
+              if (cF5 == 1) {
+                const res = await sc.voteOnReason(String(j),String(c),'++',1, {
                   from: accounts[k],
                 }); 
                 // console.log('vote');
-              } else if (rs+cF1+cF2+cF3 < nodesNumber) {
-                const res = await sc.voteOnReason(String(j),String(c),2,2, {
+              } else if (rs+cF1+cF2+cF3+cF4+cF5 < nodesNumber) {
+                const res = await sc.voteOnReason(String(j),String(c),'++',1, {
                   from: accounts[k],
                 }); 
-                cF3 = 1;
+                cF5 = 1;
                 // console.log('create');
               }
             }
           }
         }
-        rs += cF1 + cF2 + cF3;
+        rs += cF1 + cF2 + cF3 + cF4 + cF5;
       }
 
       const reasons = await sc.getReasons();

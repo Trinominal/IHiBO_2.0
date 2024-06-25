@@ -16,6 +16,8 @@ gasMeasurementsAcc = []
 gasMeasurementsAdd = []
 tmpGasAdd = []
 
+boxplotData = []
+
 
 def plot11():
     fig, _ = plt.subplots(nrows=1, ncols=1, constrained_layout=True)
@@ -199,6 +201,23 @@ def plot32():
 
     # plt.show()
     plt.savefig('./gas-cost32.png', bbox_inches='tight', dpi=300)
+
+def boxplot():
+    # print(boxplotData[1:5])
+    # print(len(boxplotData[1:5]))
+
+    figure = plt.figure(figsize =(10, 7))  
+    # ax = figure.add_axes([0, 0, 1, 1])  
+    ax = figure.add_subplot(111)  
+    bp = ax.boxplot(boxplotData)  
+    ax.set_xticklabels(['5 nodes', '10 nodes','15 nodes', '20 nodes'])
+    plt.ylabel('Computation cost in GAS')  
+    plt.xlabel('Number of nodes considered')
+    plt.title("Box plot of gas cost for balancing reasons in IHiBO")  
+    ax.get_xaxis().tick_bottom()  
+    ax.get_yaxis().tick_left()    
+    plt.show()  
+    plt.savefig('./addboxplot.png', bbox_inches='tight', dpi=300)
 
 def plot41():
     fig, _ = plt.subplots(nrows=1, ncols=1, constrained_layout=True)
@@ -390,45 +409,66 @@ def plot40():
 #     # plot42()
 
 
-with open('data.csv', 'r') as csvFile1, open('data4.csv', 'r') as csvFile2:
-        reader1 = csv.reader(csvFile1)
-        reader2 = csv.reader(csvFile2)
-        next(reader1)
-        next(reader2)
-        nodesTmp1 = 5
-        nodesTmp2 = 5
-        edgesPTmp = 0.33
-        votePTmp = 0.5
-        for row1, row2 in zip(reader1,reader2):
-            nodesNumber1 = int(row1[0])
-            edgesNumber = int(row1[1])
-            edgesP = float(row1[2])
-            prefP = float(row1[3])
-            reductionPref3 = int(row1[4])
-            prefExtensionsGas = int(row1[5])
+with open('data4.csv', 'r') as csvFile:
+    reader = csv.reader(csvFile)
+    next(reader)
+    nodesTmp = 5
+    votePTmp = 0.65
+    tmp = []
+    for row in reader:
+        nodesNumber = int(row[0])
+        voteP = float(row[1])
+        additiveGas = int(row[2])
 
-            nodesNumber2 = int(row2[0])
-            voteP = float(row2[1])
-            additiveGas = int(row2[2])
+        if (nodesNumber != nodesTmp or voteP != votePTmp):
+            nodesTmp = nodesNumber
+            votePTmp = voteP
+            boxplotData.append(tmp)
+            tmp = []
+        tmp.append(additiveGas)
+    boxplotData.append(tmp)
+    boxplot()
 
-            if (nodesNumber1 != nodesTmp1 or edgesP != edgesPTmp):
-                nodesTmp1 = nodesNumber1
-                edgesPTmp = edgesP
-                votePTmp = voteP
-                gasMeasurementsRed.append(np.mean(tmpGasRed))
-                gasMeasurementsExt.append(np.mean(tmpGasExt))
-                tmpGasRed = []
-                tmpGasExt = []
-            if (nodesNumber2 != nodesTmp2 or voteP != votePTmp):
-                nodesTmp2 = nodesNumber2
-                votePTmp = voteP
-                gasMeasurementsAdd.append(np.mean(tmpGasAdd))
-                tmpGasAdd = []
-            tmpGasRed.append(reductionPref3)
-            tmpGasExt.append(prefExtensionsGas)
-            tmpGasAdd.append(additiveGas)
-        gasMeasurementsRed.append(np.mean(tmpGasRed))
-        gasMeasurementsExt.append(np.mean(tmpGasExt))
-        gasMeasurementsAdd.append(np.mean(tmpGasAdd))
-        # plot41()
-        plot40()
+
+# with open('data.csv', 'r') as csvFile1, open('data4.csv', 'r') as csvFile2:
+#         reader1 = csv.reader(csvFile1)
+#         reader2 = csv.reader(csvFile2)
+#         next(reader1)
+#         next(reader2)
+#         nodesTmp1 = 5
+#         nodesTmp2 = 5
+#         edgesPTmp = 0.33
+#         votePTmp = 0.5
+#         for row1, row2 in zip(reader1,reader2):
+#             nodesNumber1 = int(row1[0])
+#             edgesNumber = int(row1[1])
+#             edgesP = float(row1[2])
+#             prefP = float(row1[3])
+#             reductionPref3 = int(row1[4])
+#             prefExtensionsGas = int(row1[5])
+
+#             nodesNumber2 = int(row2[0])
+#             voteP = float(row2[1])
+#             additiveGas = int(row2[2])
+
+#             if (nodesNumber1 != nodesTmp1 or edgesP != edgesPTmp):
+#                 nodesTmp1 = nodesNumber1
+#                 edgesPTmp = edgesP
+#                 votePTmp = voteP
+#                 gasMeasurementsRed.append(np.mean(tmpGasRed))
+#                 gasMeasurementsExt.append(np.mean(tmpGasExt))
+#                 tmpGasRed = []
+#                 tmpGasExt = []
+#             if (nodesNumber2 != nodesTmp2 or voteP != votePTmp):
+#                 nodesTmp2 = nodesNumber2
+#                 votePTmp = voteP
+#                 gasMeasurementsAdd.append(np.mean(tmpGasAdd))
+#                 tmpGasAdd = []
+#             tmpGasRed.append(reductionPref3)
+#             tmpGasExt.append(prefExtensionsGas)
+#             tmpGasAdd.append(additiveGas)
+#         gasMeasurementsRed.append(np.mean(tmpGasRed))
+#         gasMeasurementsExt.append(np.mean(tmpGasExt))
+#         gasMeasurementsAdd.append(np.mean(tmpGasAdd))
+#         # plot41()
+#         plot40()
