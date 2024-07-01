@@ -1,4 +1,4 @@
-# IHiBO 2.0 - Intelligent Human-input-based Blockchain Oracle 2.0
+# Balancing normative reasons in IHiBO
 This project aims to develop a new smart contract in IHiBO. This will be done using the theory of balancing normative reasons.
 
 # IHiBO - Intelligent Human-input-based Blockchain Oracle
