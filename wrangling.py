@@ -17,6 +17,7 @@ gasMeasurementsAdd = []
 tmpGasAdd = []
 
 boxplotData = []
+boxplotData2 = []
 
 
 def plot11():
@@ -202,7 +203,7 @@ def plot32():
     # plt.show()
     plt.savefig('./gas-cost32.png', bbox_inches='tight', dpi=300)
 
-def boxplot():
+def boxplot1():
     # print(boxplotData[1:5])
     # print(len(boxplotData[1:5]))
 
@@ -214,8 +215,27 @@ def boxplot():
     plt.ylabel('Computation cost in GAS')  
     plt.xlabel('Number of nodes considered')
     plt.title("Box plot of gas cost for balancing reasons in IHiBO")  
-    ax.get_xaxis().tick_bottom()  
-    ax.get_yaxis().tick_left()    
+    # ax.get_xaxis().tick_bottom()  
+    # ax.get_yaxis().tick_left()    
+    plt.show()  
+    plt.savefig('./addboxplot.png', bbox_inches='tight', dpi=300)
+
+def boxplot2():
+    # print(boxplotData[1:5])
+    # print(len(boxplotData[1:5]))
+
+    figure = plt.figure(figsize =(10, 7))  
+    # ax = figure.add_axes([0, 0, 1, 1])  
+    ax = figure.add_subplot(111)  
+    bp = ax.boxplot(boxplotData2)  
+    ax.set_xticklabels(['0.33; 5 nodes', '0.33; 10 nodes','0.33; 15 nodes', '0.33; 20 nodes',
+                        '0.5; 5 nodes', '0.5; 10 nodes','0.5; 15 nodes', '0.5; 20 nodes',
+                        '0.66; 5 nodes', '0.66; 10 nodes', '0.66; 15 nodes', '0.66; 20 nodes'])
+    plt.ylabel('Computation cost in GAS')  
+    plt.xlabel('Number of nodes considered')
+    plt.title("Box plot of gas cost for balancing reasons in IHiBO")  
+    # ax.get_xaxis().tick_bottom()  
+    # ax.get_yaxis().tick_left()    
     plt.show()  
     plt.savefig('./addboxplot.png', bbox_inches='tight', dpi=300)
 
@@ -409,26 +429,49 @@ def plot40():
 #     # plot42()
 
 
-with open('data4.csv', 'r') as csvFile:
+# with open('data4.csv', 'r') as csvFile:
+#     reader = csv.reader(csvFile)
+#     next(reader)
+#     nodesTmp = 5
+#     votePTmp = 0.65
+#     tmp = []
+#     for row in reader:
+#         nodesNumber = int(row[0])
+#         voteP = float(row[1])
+#         additiveGas = int(row[2])
+
+#         if (nodesNumber != nodesTmp or voteP != votePTmp):
+#             nodesTmp = nodesNumber
+#             votePTmp = voteP
+#             boxplotData.append(tmp)
+#             tmp = []
+#         tmp.append(additiveGas)
+#     boxplotData.append(tmp)
+#     boxplot1()
+
+with open('data.csv', 'r') as csvFile:
     reader = csv.reader(csvFile)
     next(reader)
     nodesTmp = 5
-    votePTmp = 0.65
+    edgesPTmp = 0.33
     tmp = []
     for row in reader:
         nodesNumber = int(row[0])
-        voteP = float(row[1])
-        additiveGas = int(row[2])
+        edgesNumber = int(row[1])
+        edgesP = float(row[2])
+        prefP = float(row[3])
+        reductionGas = int(row[4])
+        extensionGas = int(row[5])
+        totalGas = reductionGas + extensionGas
 
-        if (nodesNumber != nodesTmp or voteP != votePTmp):
+        if (nodesNumber != nodesTmp or edgesP != edgesPTmp):
             nodesTmp = nodesNumber
-            votePTmp = voteP
-            boxplotData.append(tmp)
+            edgesPTmp = edgesP
+            boxplotData2.append(tmp)
             tmp = []
-        tmp.append(additiveGas)
-    boxplotData.append(tmp)
-    boxplot()
-
+        tmp.append(totalGas)
+    boxplotData2.append(tmp)
+    boxplot2()
 
 # with open('data.csv', 'r') as csvFile1, open('data4.csv', 'r') as csvFile2:
 #         reader1 = csv.reader(csvFile1)
