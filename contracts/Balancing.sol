@@ -55,7 +55,11 @@ contract Balancing {
 
     // create functon to initialize contract. create access right for admin to set issue and read rights of the discourse.
 
-    function convertToString(uint256 value) internal pure returns (string memory) {
+    function convertToString(uint256 value) 
+        internal 
+        pure 
+        returns (string memory) 
+    {
         if (value == 0) {
             return "0";
         }
