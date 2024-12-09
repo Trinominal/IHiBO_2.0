@@ -2,67 +2,42 @@
 
 pragma solidity ^0.5.1;
 
-pragma experimental ABIEncoderV2; // experimental feature | do not use in live deployments
+// pragma experimental ABIEncoderV2; // experimental feature | do not use in live deployments
 
-// import "./DirectedGraph.sol";
-// import "./EnumerableMap.sol";
 import "./HitchensUnorderedKeySet.sol";
 
-// /*
+
 contract Balancing {
     using HitchensUnorderedKeySetLib for HitchensUnorderedKeySetLib.Set;
 
-    // struct Reason {
-    //     string justification;
-    //     string issue;
-    //     string polarity;
-    // }
-
-    // struct Context {
-    //     uint256 rcount;
-    //     string[] reasons;
-    //     string issue;
-    // }
-
-    // struct Decision {
-    //     Context context;
-    //     mapping(uint256 => uint256) weights;
-    //     uint256 outputPolarity;
-    // }
-
     struct Node {
-        uint256 value;
+        uint256 magnitude;
+        string polarity;
         string metadata;
     }
 
     struct Graph {
         HitchensUnorderedKeySetLib.Set reasonsIDs;
         mapping(uint256 => Node) reasons;
-        string topic;
+        string issue;
+        string decision;
     }
 
-    // HitchensUnorderedKeySetLib.Set reasonsIds;
-    // mapping(uint256 => Reason) reasons;
-    // string issueTBD;
-    // Context contextTBD; 
-    // mapping(uint256 => uint256) weights;
+    HitchensUnorderedKeySetLib.Set graphsIDs;
+    mapping(uint256 => Graph) graphs;
 
-    // // HitchensUnorderedKeySetLib.Set decisionsIds;
-    // // mapping(uint256 => Decision) decisions;
+    mapping(address => HitchensUnorderedKeySetLib.Set) agentsReasons;
 
-    // mapping(address => HitchensUnorderedKeySetLib.Set) sources;
-
-    // mapping(address => uint256) reputations;
-
-    // // event Output(uint256 key);
-    // event Output(string reasons, string issue, string polarity);
+    event OutputDecision(Graph graph);
 
 
-    // constructor() public {
-    //     // for now constructor sets issue to 0 // this is a bit silly as there will only be one issue in the contract but there can be reasons that are relevant for another issue.
-        
-    //     issueTBD = '0';
-    // }
+    constructor() public {
+
+        graphsIDs.insert(bytes32(uint256(1)));
+
+    }
+
+
 
     // // create functon to initialize contract. create access right for admin to set issue and read rights of the discourse.
 
