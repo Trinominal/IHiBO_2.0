@@ -574,7 +574,7 @@ for (let i = 0; i < epochs; i++) {
     const iota = accounts[8];
     const kappa = accounts[9];
 
-    const nodesNumber = nodes[1];
+    const nodesNumber = nodes[3];
     let c = 1;
     let ag = 3;
     let voteP = 0.25;

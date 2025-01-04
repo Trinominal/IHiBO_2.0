@@ -52,6 +52,15 @@ library DirectedGraph {
         arg.value++;
     }
 
+    // function getValue(Graph storage g, uint256 nodeId)
+    //     public
+    //     returns (uint256)
+    // {
+    //     require(g.nodesIds.exists(bytes32(nodeId)), "Unknown nodeId.");
+    //     Node storage n = g.nodes[nodeId];
+    //     return n.value;
+    // }
+
     function insertEdge(
         Graph storage g,
         uint256 sourceId,
