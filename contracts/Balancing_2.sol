@@ -68,18 +68,19 @@ contract Balancing {
         re = 0;
         // check that reason is not known yet.
         for (uint256 j = 1; j < graph.reasonsIDs.count() + 1; j++) {
-            if (compareStrings(graph.reasons[j].justification, justification) && 
+            uint256 reasonId = uint256(reasonsIds.keyAtIndex(j));
+            if (compareStrings(graph.reasons[reasonId].justification, justification) && 
             // compareStrings(graph.reasons[j].issue, issue) && 
-            compareStrings(graph.reasons[j].polarity, polarity)) {
+            compareStrings(graph.reasons[reasonId].polarity, polarity)) {
                 // conclude reason is already in reasons
                 // increase weight by magnitude
-                graph.reasons[j].weight = graph.reasons[j].weight + confidence*reputations[msg.sender];
+                graph.reasons[reasonId].weight = graph.reasons[reasonId].weight + confidence*reputations[msg.sender];
 
                 HitchensUnorderedKeySetLib.Set storage source = sources[
                     msg.sender
                 ];
-                source.insert(bytes32(j));
-                re = int256(j);
+                source.insert(bytes32(reasonId));
+                re = int256(reasonId);
                 break;
             }
         }
