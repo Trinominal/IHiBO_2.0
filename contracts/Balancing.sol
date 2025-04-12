@@ -183,13 +183,20 @@ contract Balancing {
         re = 0;
         // check that reason is not known yet.
         for (uint256 j = 1; j < reasonsIds.count() + 1; j++) {
-            if (compareStrings(reasons[j].justification, justification) && 
-            compareStrings(reasons[j].issue, issue) && 
-            compareStrings(reasons[j].polarity, polarity)) {
+            // if reason is known
+            uint256 reasonId = uint256(reasonsIds.keyAtIndex(j));
+            if (compareStrings(reasons[reasonId].justification, justification) && 
+            compareStrings(reasons[reasonId].issue, issue) && 
+            compareStrings(reasons[reasonId].polarity, polarity)) {
                 // conclude reason is already in reasons
                 // increase weight by +1
-                weights[j-1] = weights[j-1] + magnitude*reputations[msg.sender];
-                re = 1;
+                weights[reasonId-1] = weights[reasonId-1] + magnitude*reputations[msg.sender];
+                
+                HitchensUnorderedKeySetLib.Set storage source = sources[
+                    msg.sender
+                ];
+                source.insert(bytes32(reasonId));
+                re = int256(reasonId);
                 break;
             }
         }

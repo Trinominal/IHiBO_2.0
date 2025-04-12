@@ -69,6 +69,7 @@ contract Balancing {
         nodeID = 0;
         // check that reason is not present yet.
         for (uint256 j = 1; j < graph.reasonsIDs.count() + 1; j++) {
+<<<<<<< HEAD
             if (compareStrings(graph.reasons[j].ground, ground) && 
             // compareStrings(graph.reasons[j].issue, issue) && 
                     compareStrings(graph.reasons[j].polarity, polarity)) {
@@ -76,12 +77,26 @@ contract Balancing {
                 // increase weight by magnitude
                 // graph.reasons[j].weight = graph.reasons[j].weight + confidence*reputations[msg.sender];
                 graph.reasons[j].weight = graph.reasons[j].weight + magnitude;
+=======
+            uint256 reasonId = uint256(reasonsIds.keyAtIndex(j));
+            if (compareStrings(graph.reasons[reasonId].justification, justification) && 
+            // compareStrings(graph.reasons[j].issue, issue) && 
+            compareStrings(graph.reasons[reasonId].polarity, polarity)) {
+                // conclude reason is already in reasons
+                // increase weight by magnitude
+                graph.reasons[reasonId].weight = graph.reasons[reasonId].weight + confidence*reputations[msg.sender];
+>>>>>>> origin/main
 
                 HitchensUnorderedKeySetLib.Set storage source = sources[
                     msg.sender
                 ];
+<<<<<<< HEAD
                 source.insert(bytes32(j));
                 nodeID = int256(j);
+=======
+                source.insert(bytes32(reasonId));
+                re = int256(reasonId);
+>>>>>>> origin/main
                 break;
             }
         }
