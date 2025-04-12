@@ -13,9 +13,10 @@ contract Balancing {
     struct Node {
         uint256 weight;
         string polarity;
-        string justifications;
+        string ground;
     }
 
+    // maybe the voters should also be recorded in the graph
     struct Graph {
         HitchensUnorderedKeySetLib.Set reasonsIDs;
         mapping(uint256 => Node) reasons;
@@ -55,57 +56,59 @@ contract Balancing {
 
     function voteOnReason
     (
-        string memory justification, 
+        string memory ground, 
         // string memory issue, 
         string memory polarity, 
-        uint256 confidence
+        uint256 magnitude
     ) 
         public
-        returns (int256 re)
+        returns (int256 nodeID)
     {
         Graph storage graph = graphs[1];
 
-        re = 0;
-        // check that reason is not known yet.
+        nodeID = 0;
+        // check that reason is not present yet.
         for (uint256 j = 1; j < graph.reasonsIDs.count() + 1; j++) {
-            if (compareStrings(graph.reasons[j].justification, justification) && 
+            if (compareStrings(graph.reasons[j].ground, ground) && 
             // compareStrings(graph.reasons[j].issue, issue) && 
-            compareStrings(graph.reasons[j].polarity, polarity)) {
+                    compareStrings(graph.reasons[j].polarity, polarity)) {
                 // conclude reason is already in reasons
                 // increase weight by magnitude
-                graph.reasons[j].weight = graph.reasons[j].weight + confidence*reputations[msg.sender];
+                // graph.reasons[j].weight = graph.reasons[j].weight + confidence*reputations[msg.sender];
+                graph.reasons[j].weight = graph.reasons[j].weight + magnitude;
 
                 HitchensUnorderedKeySetLib.Set storage source = sources[
                     msg.sender
                 ];
                 source.insert(bytes32(j));
-                re = int256(j);
+                nodeID = int256(j);
                 break;
             }
         }
 
-        if (re == 0) {// reason is new add reason and set weight to 1
+        if (nodeID == 0) {// reason is new add reason and set weight
             uint256 reasonID = graph.reasonsIDs.count() + 1;
             graph.reasonsIDs.insert(bytes32(reasonID));
             Reason storage reason = graph.reasons[reasonID];
-            // reason.justification = justification;
-            graph.reasons[reasonID].justification = justification;
             // reason.issue = issue;
-            // reason.polarity = polarity;
-            graph.reasons[reasonID].polarity = polarity;
+            reason.ground = ground;
+            reason.polarity = polarity;
+            reason.weight = magnitude;
+            // graph.reasons[reasonID].ground = ground;
+            // graph.reasons[reasonID].polarity = polarity;
             // weights[reasonID-1] = confidence*reputations[msg.sender];
-            graph.reasons[reasonID].weight = graph.reasons[reasonID].weight + confidence*reputations[msg.sender];
+            // graph.reasons[reasonID].weight = graph.reasons[reasonID].weight + confidence*reputations[msg.sender];
     
             HitchensUnorderedKeySetLib.Set storage source = sources[
                 msg.sender
             ];
             source.insert(bytes32(reasonID));
-            re = int256(reasonID);
+            nodeID = int256(reasonID);
         }
     }
 
 
-    // probably this can be done in a nicer way maybe via a library
+    // probably there is a function in some library to convert to string
     function convertToString(uint256 value) 
         internal 
         pure 
@@ -154,28 +157,27 @@ contract Balancing {
 
 
         for (uint256 i = 0; i < rs; i++){
-                
+                // TODO: this for loop can be generalized for n-values with a dictionary.
+                // this would clean up the amount of variables hanging around.
             uint256 reasonID = uint256(graph.reasonsIDs.keyAtIndex(i));
-            Reason storage reason = graph.reasons[reasonId];//not sure if this works
+            Reason storage reason = graph.reasons[reasonId];
             
-            cs = string(abi.encodePacked(cs, " ", i, " ", reason.justification));
+            cs = string(abi.encodePacked(cs, " ", i, " ", reason.ground));
 
-            if (compareStrings(reason.issue, issueTBD)) {
-                if (compareStrings(reason.polarity, '0')) { 
-                    neut += uint256(reason.weight);
-                }
-                else if (compareStrings(reason.polarity, '-')) { 
-                    neg += uint256(reason.weight);
-                }
-                else if (compareStrings(reason.polarity, '+')) { 
-                    pos += uint256(reason.weight);
-                }
-                else if (compareStrings(reason.polarity, '--')) { 
-                    nneg += uint256(reason.weight);
-                }
-                else if (compareStrings(reason.polarity, '++')) { 
-                    ppos += uint256(reason.weight);
-                }
+            if (compareStrings(reason.polarity, '0')) { 
+                neut += uint256(reason.weight);
+            }
+            else if (compareStrings(reason.polarity, '-')) { 
+                neg += uint256(reason.weight);
+            }
+            else if (compareStrings(reason.polarity, '+')) { 
+                pos += uint256(reason.weight);
+            }
+            else if (compareStrings(reason.polarity, '--')) { 
+                nneg += uint256(reason.weight);
+            }
+            else if (compareStrings(reason.polarity, '++')) { 
+                ppos += uint256(reason.weight);
             }
         }  
 
@@ -279,7 +281,7 @@ contract Balancing {
     //     public
     //     view
     //     returns (
-    //         string[] memory justifications,
+    //         string[] memory ground,
     //         string[] memory issues,
     //         string[] memory polarities
     //     )
@@ -287,14 +289,14 @@ contract Balancing {
         
     //     uint256 reasonsCount = reasonsIds.count();
 
-    //     justifications = new string[](reasonsCount);
+    //     ground = new string[](reasonsCount);
     //     issues = new string[](reasonsCount);
     //     polarities = new string[](reasonsCount);
 
     //     for (uint256 i = 0; i < reasonsIds.count(); i++) {
     //         uint256 reasonId = uint256(reasonsIds.keyAtIndex(i));
     //         Reason storage reason = reasons[reasonId];
-    //         justifications[i] = reason.justification;
+    //         ground[i] = reason.ground;
     //         issues[i] = reason.issue;
     //         polarities[i] = reason.polarity;
     //     }
