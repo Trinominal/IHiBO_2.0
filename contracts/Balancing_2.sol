@@ -16,12 +16,7 @@ contract Balancing {
         string ground;
     }
 
-<<<<<<< HEAD
-    // maybe the voters should also be recorded in the graph
-    struct Graph {
-=======
     struct Weighing {
->>>>>>> origin/main
         HitchensUnorderedKeySetLib.Set reasonsIDs;
         mapping(uint256 => Reason) reasons;
         string option;
@@ -66,76 +61,30 @@ contract Balancing {
         uint256 magnitude
     ) 
         public
-        returns (int256 nodeID)
+        returns (int256 reason)
     {
         Weighing storage weighing = weighings[1];
 
-<<<<<<< HEAD
-        nodeID = 0;
-        // check that reason is not present yet.
-        for (uint256 j = 1; j < graph.reasonsIDs.count() + 1; j++) {
-<<<<<<< HEAD
-            if (compareStrings(graph.reasons[j].ground, ground) && 
-            // compareStrings(graph.reasons[j].issue, issue) && 
-                    compareStrings(graph.reasons[j].polarity, polarity)) {
-                // conclude reason is already in reasons
-                // increase weight by magnitude
-                // graph.reasons[j].weight = graph.reasons[j].weight + confidence*reputations[msg.sender];
-                graph.reasons[j].weight = graph.reasons[j].weight + magnitude;
-=======
-            uint256 reasonId = uint256(reasonsIds.keyAtIndex(j));
-            if (compareStrings(graph.reasons[reasonId].justification, justification) && 
-=======
-        re = 0;
+        reason = 0;
         // check that reason is not known yet.
         for (uint256 j = 1; j < weighing.reasonsIDs.count() + 1; j++) {
             uint256 reasonID = uint256(reasonsIDs.keyAtIndex(j));
             if (compareStrings(weighing.reasons[reasonID].ground, ground) && 
->>>>>>> origin/main
             // compareStrings(graph.reasons[j].issue, issue) && 
             compareStrings(weighing.reasons[reasonID].polarity, polarity)) {
                 // conclude reason is already in reasons
                 // increase weight by magnitude
-<<<<<<< HEAD
-                graph.reasons[reasonId].weight = graph.reasons[reasonId].weight + confidence*reputations[msg.sender];
->>>>>>> origin/main
-
-                HitchensUnorderedKeySetLib.Set storage source = sources[
-                    msg.sender
-                ];
-<<<<<<< HEAD
-                source.insert(bytes32(j));
-                nodeID = int256(j);
-=======
-                source.insert(bytes32(reasonId));
-                re = int256(reasonId);
->>>>>>> origin/main
-=======
                 weighing.reasons[reasonID].weight = weighing.reasons[reasonID].weight + confidence*reputations[msg.sender];//maybe this should be magnitude instead of conf*rep
 
                 HitchensUnorderedKeySetLib.Set storage source = sources[ msg.sender];
                 source.insert(bytes32(reasonID));
-                re = int256(reasonID);
->>>>>>> origin/main
+                reason = int256(reasonID);
+
                 break;
             }
         }
 
-<<<<<<< HEAD
-        if (nodeID == 0) {// reason is new add reason and set weight
-            uint256 reasonID = graph.reasonsIDs.count() + 1;
-            graph.reasonsIDs.insert(bytes32(reasonID));
-            Reason storage reason = graph.reasons[reasonID];
-            // reason.issue = issue;
-            reason.ground = ground;
-            reason.polarity = polarity;
-            reason.weight = magnitude;
-            // graph.reasons[reasonID].ground = ground;
-            // graph.reasons[reasonID].polarity = polarity;
-            // weights[reasonID-1] = confidence*reputations[msg.sender];
-            // graph.reasons[reasonID].weight = graph.reasons[reasonID].weight + confidence*reputations[msg.sender];
-=======
-        if (re == 0) {// reason is new add reason and set weight to 1
+        if (reason == 0) {// reason is new add reason and set weight to 1
             uint256 reasonID = weighing.reasonsIDs.count() + 1;
             weighing.reasonsIDs.insert(bytes32(reasonID));
             Reason storage reason = weighing.reasons[reasonID];
@@ -146,17 +95,16 @@ contract Balancing {
             weighing.reasons[reasonID].polarity = polarity;
             // weights[reasonID-1] = confidence*reputations[msg.sender];
             weighing.reasons[reasonID].weight = weighing.reasons[reasonID].weight + confidence*reputations[msg.sender];// maybe this should be magnitude instead of conf*rep
->>>>>>> origin/main
     
             HitchensUnorderedKeySetLib.Set storage source = sources[ msg.sender];
             source.insert(bytes32(reasonID));
-            nodeID = int256(reasonID);
+            reason = int256(reasonID);
         }
     }
 
 
     // probably there is a function in some library to convert to string
-    function convertToString(uint256 value) 
+    function convertToString(uint256 value) // this function converts an int to str
         internal 
         pure 
         returns (string memory) 
@@ -204,16 +152,10 @@ contract Balancing {
 
 
         for (uint256 i = 0; i < rs; i++){
-<<<<<<< HEAD
                 // TODO: this for loop can be generalized for n-values with a dictionary.
                 // this would clean up the amount of variables hanging around.
             uint256 reasonID = uint256(graph.reasonsIDs.keyAtIndex(i));
-            Reason storage reason = graph.reasons[reasonId];
-=======
-                
-            uint256 reasonID = uint256(weighing.reasonsIDs.keyAtIndex(i));
-            Reason storage reason = weighing.reasons[reasonID];//not sure if this works
->>>>>>> origin/main
+            Reason storage reason = weighing.reasons[reasonID];
             
             cs = string(abi.encodePacked(cs, " ", i, " ", reason.ground));
 
@@ -280,54 +222,65 @@ contract Balancing {
 
  
 
+// interaction functions 
 
-    // function setReputation(uint256 rep, address subject) 
-    //     public
-    // {
-    //     assert(msg.sender!=subject);
-    //     reputations[subject] = rep;
-    // }
+    function setReputation(uint256 rep, address subject) 
+        public
+    {
+        assert(msg.sender!=subject);
+        reputations[subject] = rep;
+    }
 
-    // function returnWeight(uint256 r) 
-    //     public
-    //     view
-    //     returns (uint256 weight) 
-    // {
-    //     weight = weights[r];
-    // }
+    function returnWeight(uint256 reasonID) 
+        public
+        view
+        returns (uint256 weight) 
+    {
+        Weighing storage weighing = weighings[1];
 
-    // function changeWeight(uint256 reasonID, uint256 newWeight) 
-    //     public
-    // {
-    //     assert(reasonID != 0);
-    //     weights[reasonID] = newWeight;
-    // }
+        weight = weighing.reasons[reasonID].weight;
+    }
 
-    // function getWeights()
-    //     public
-    //     view
-    //     returns (
-    //         uint256[] memory
-    //     )
-    // {
-    //     uint256 rs = reasonsIds.count();
+    function changeWeight(uint256 reasonID, uint256 newWeight) 
+        public
+    {
+        assert(reasonID != 0);
 
-    //     uint256[] memory _weights = new uint256[](rs);
+        Weighing storage weighing = weighings[1];
 
-    //     for (uint256 i = 0; i < rs; i++) {
-    //         _weights[i] = weights[i];
-    //     }
+        weighing.reasons[reasonID].weight = newWeight;
+    }
 
-    //     return _weights;
-    // }
+    function getWeights()
+        public
+        view
+        returns (
+            uint256[] memory
+        )
+    {
+        Weighing storage weighing = weighings[1];
+        uint256 rs = weighing.reasonsIDs.count();
 
-    // function getIssue()
-    //     public
-    //     view
-    //     returns ( string memory)
-    // {
-    //     return issueTBD;
-    // }
+        uint256[] memory _weights = new uint256[](rs);
+
+        for (uint256 i = 0; i < rs; i++) {
+            uint256 reasonID = uint256(graph.reasonsIDs.keyAtIndex(i));
+            _weights[i] = weighing.reasons[reasonID].weight;
+        }
+
+        return _weights;
+    }
+
+    function getIssue()
+        public
+        view
+        returns ( string memory)
+    {
+
+        Weighing storage weighing = weighings[1];
+
+        return weighing.option;
+    }
     
 
     // function getReasons()
