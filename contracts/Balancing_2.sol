@@ -10,42 +10,46 @@ import "./HitchensUnorderedKeySet.sol";
 contract Balancing {
     using HitchensUnorderedKeySetLib for HitchensUnorderedKeySetLib.Set;
 
-    struct Node {
+    struct Reason {
         uint256 weight;
         string polarity;
         string ground;
     }
 
+<<<<<<< HEAD
     // maybe the voters should also be recorded in the graph
     struct Graph {
+=======
+    struct Weighing {
+>>>>>>> origin/main
         HitchensUnorderedKeySetLib.Set reasonsIDs;
-        mapping(uint256 => Node) reasons;
-        string issue;
-        string decision;
+        mapping(uint256 => Reason) reasons;
+        string option;
+        string output;
     }
 
-    HitchensUnorderedKeySetLib.Set graphsIDs;
-    mapping(uint256 => Graph) graphs;
+    HitchensUnorderedKeySetLib.Set weighingIDs;
+    mapping(uint256 => Weighing) weighings;
 
     mapping(address => HitchensUnorderedKeySetLib.Set) sourcesReasons;//agentsArguments, sources
 
-    event OutputDecision(Graph graph);// maybe instead output a hash or index for privacy
+    event OutputDecision(Weighing weighing);// maybe instead output a hash or index for privacy
     // then allow access only to particular agents.
 
 
     constructor() public {
-        graphsIDs.insert(bytes32(uint256(1)));
-        Graph storage graph = graphs[1];
-        graph.issue = '0';
+        weighingsIDs.insert(bytes32(uint256(1)));
+        Weighing storage weighing = weighings[1];
+        weighing.option = '0';
     }
 
-    function setIssue(string memory issue)
+    function setOption(string memory option)
     	public
     {
     	// TODO change to depend on access rights and can only be called at the start
     	if(true) {
-            Graph storage graph = graphs[1];
-    	    graph.issue = issue;
+            Weighing storage weighing = weighings[1];
+    	    weighing.option = option;
     	}
     }
     
@@ -64,8 +68,9 @@ contract Balancing {
         public
         returns (int256 nodeID)
     {
-        Graph storage graph = graphs[1];
+        Weighing storage weighing = weighings[1];
 
+<<<<<<< HEAD
         nodeID = 0;
         // check that reason is not present yet.
         for (uint256 j = 1; j < graph.reasonsIDs.count() + 1; j++) {
@@ -80,10 +85,18 @@ contract Balancing {
 =======
             uint256 reasonId = uint256(reasonsIds.keyAtIndex(j));
             if (compareStrings(graph.reasons[reasonId].justification, justification) && 
+=======
+        re = 0;
+        // check that reason is not known yet.
+        for (uint256 j = 1; j < weighing.reasonsIDs.count() + 1; j++) {
+            uint256 reasonID = uint256(reasonsIDs.keyAtIndex(j));
+            if (compareStrings(weighing.reasons[reasonID].ground, ground) && 
+>>>>>>> origin/main
             // compareStrings(graph.reasons[j].issue, issue) && 
-            compareStrings(graph.reasons[reasonId].polarity, polarity)) {
+            compareStrings(weighing.reasons[reasonID].polarity, polarity)) {
                 // conclude reason is already in reasons
                 // increase weight by magnitude
+<<<<<<< HEAD
                 graph.reasons[reasonId].weight = graph.reasons[reasonId].weight + confidence*reputations[msg.sender];
 >>>>>>> origin/main
 
@@ -97,10 +110,18 @@ contract Balancing {
                 source.insert(bytes32(reasonId));
                 re = int256(reasonId);
 >>>>>>> origin/main
+=======
+                weighing.reasons[reasonID].weight = weighing.reasons[reasonID].weight + confidence*reputations[msg.sender];//maybe this should be magnitude instead of conf*rep
+
+                HitchensUnorderedKeySetLib.Set storage source = sources[ msg.sender];
+                source.insert(bytes32(reasonID));
+                re = int256(reasonID);
+>>>>>>> origin/main
                 break;
             }
         }
 
+<<<<<<< HEAD
         if (nodeID == 0) {// reason is new add reason and set weight
             uint256 reasonID = graph.reasonsIDs.count() + 1;
             graph.reasonsIDs.insert(bytes32(reasonID));
@@ -113,10 +134,21 @@ contract Balancing {
             // graph.reasons[reasonID].polarity = polarity;
             // weights[reasonID-1] = confidence*reputations[msg.sender];
             // graph.reasons[reasonID].weight = graph.reasons[reasonID].weight + confidence*reputations[msg.sender];
+=======
+        if (re == 0) {// reason is new add reason and set weight to 1
+            uint256 reasonID = weighing.reasonsIDs.count() + 1;
+            weighing.reasonsIDs.insert(bytes32(reasonID));
+            Reason storage reason = weighing.reasons[reasonID];
+            // reason.ground = ground;
+            weighing.reasons[reasonID].ground = ground;
+            // reason.option = option;
+            // reason.polarity = polarity;
+            weighing.reasons[reasonID].polarity = polarity;
+            // weights[reasonID-1] = confidence*reputations[msg.sender];
+            weighing.reasons[reasonID].weight = weighing.reasons[reasonID].weight + confidence*reputations[msg.sender];// maybe this should be magnitude instead of conf*rep
+>>>>>>> origin/main
     
-            HitchensUnorderedKeySetLib.Set storage source = sources[
-                msg.sender
-            ];
+            HitchensUnorderedKeySetLib.Set storage source = sources[ msg.sender];
             source.insert(bytes32(reasonID));
             nodeID = int256(reasonID);
         }
@@ -157,7 +189,7 @@ contract Balancing {
         // view 
         returns (string memory dec)
     {
-        Graph storage graph = graphs[1];
+        Weighing storage weighing = weighings[1];
 
         dec = '';
         uint256 magn = 0;
@@ -168,14 +200,20 @@ contract Balancing {
         int256 sum = 0;
         uint256 neut = 0;
         string memory cs = '';
-        uint256 rs = graph.reasonsIDs.count();   
+        uint256 rs = weighing.reasonsIDs.count();   
 
 
         for (uint256 i = 0; i < rs; i++){
+<<<<<<< HEAD
                 // TODO: this for loop can be generalized for n-values with a dictionary.
                 // this would clean up the amount of variables hanging around.
             uint256 reasonID = uint256(graph.reasonsIDs.keyAtIndex(i));
             Reason storage reason = graph.reasons[reasonId];
+=======
+                
+            uint256 reasonID = uint256(weighing.reasonsIDs.keyAtIndex(i));
+            Reason storage reason = weighing.reasons[reasonID];//not sure if this works
+>>>>>>> origin/main
             
             cs = string(abi.encodePacked(cs, " ", i, " ", reason.ground));
 
@@ -231,8 +269,8 @@ contract Balancing {
         }
 
 
-        graph.decision = dec;
-        emit Output(graph);
+        weighing.decision = dec;
+        emit Output(weighing);
 
 
         return dec;
