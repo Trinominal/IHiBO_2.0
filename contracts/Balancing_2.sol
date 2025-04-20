@@ -283,29 +283,29 @@ contract Balancing {
     }
     
 
-    // function getReasons()
-    //     public
-    //     view
-    //     returns (
-    //         string[] memory ground,
-    //         string[] memory issues,
-    //         string[] memory polarities
-    //     )
-    // {
-        
-    //     uint256 reasonsCount = reasonsIds.count();
+    function getReasons()
+        public
+        view
+        returns (
+            string[] memory ground,
+            string[] memory polarities,
+            uint256[] memory weights
+        )
+    {
+        Weighing storage weighing = weighings[1];
+        uint256 reasonsCount = weighing.reasonsIdD.count();
 
-    //     ground = new string[](reasonsCount);
-    //     issues = new string[](reasonsCount);
-    //     polarities = new string[](reasonsCount);
+        ground = new string[](reasonsCount);
+        polarities = new string[](reasonsCount);
+        weights = new uint256[](reasonsCount);
 
-    //     for (uint256 i = 0; i < reasonsIds.count(); i++) {
-    //         uint256 reasonId = uint256(reasonsIds.keyAtIndex(i));
-    //         Reason storage reason = reasons[reasonId];
-    //         ground[i] = reason.ground;
-    //         issues[i] = reason.issue;
-    //         polarities[i] = reason.polarity;
-    //     }
-    // }
+        for (uint256 i = 0; i < reasonsCount; i++) {
+            uint256 reasonID = uint256(weighing.reasonsIDs.keyAtIndex(i));
+            Reason storage reason = weighing.reasons[reasonID];
+            ground[i] = reason.ground;
+            polarities[i] = reason.polarity;
+            weights[i] = reason.weight;
+        }
+    }
 
 }
