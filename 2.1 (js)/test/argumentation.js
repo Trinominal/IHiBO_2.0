@@ -1,13 +1,8 @@
-import { ethers } from "hardhat";
-import { Contract, Signer } from "ethers";
-import { expect } from "chai";
-import fs from 'fs';
-
-// Filepath for storing the result
+const Argumentation = artifacts.require('Argumentation');
+const fs = require('fs');
 const filepath = './data.csv';
 
-// Function to print the graph
-const printGraph = (g: { nodes: any[], edgesSource: any[], edgesTarget: any[] }) => {
+const printGraph = (g) => {
   console.log('--------Graph--------');
   for (const node of g.nodes) {
     console.log('Node:', node.toString());
@@ -22,44 +17,40 @@ const printGraph = (g: { nodes: any[], edgesSource: any[], edgesTarget: any[] })
   }
 };
 
-
-// Function to generate a random integer between min and max (inclusive)
-const getRandomIntInclusive = (min: number, max: number): number => {
+const getRandomIntInclusive = (min, max) => {
   min = Math.ceil(min);
   max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
+  return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive
 };
 
-
-describe('Argumentation 0', function () {
-  let Argumentation: Contract;
-  let alpha: string;
-  let beta: string;
-  let gamma: string;
-
-  beforeEach(async function () {
-    // Deploy the contract before each test
-    Argumentation = await ethers.getContractFactory("Argumentation");
-    const deployed = await Argumentation.deploy();
-    await deployed.deployed();
-
-    [alpha, beta, gamma] = await ethers.getSigners();
-  });
+contract('Argumentation 0', (accounts) => {
+  const alpha = accounts[0];
+  const beta = accounts[1];
+  const gamma = accounts[2];
 
   it('graph 1, IHiBO original', async () => {
-    const sc = Argumentation;
+    const sc = await Argumentation.deployed();
 
-    const resAlpha = await sc.insertArgument('a', { from: alpha.address });
-    const resBeta = await sc.insertArgument('b', { from: beta.address });
-    const resGamma = await sc.insertArgument('c', { from: gamma.address });
+    const resAlpha = await sc.insertArgument('a', {
+      from: alpha,
+    });
+    const resBeta = await sc.insertArgument('b', {
+      from: beta,
+    });
+    const resGamma = await sc.insertArgument('c', {
+      from: gamma,
+    });
+    const resBetaSupport = await sc.supportArgument(3, {
+      from: beta,
+    });
+    const resGammaSupport = await sc.supportArgument(2, {
+      from: gamma,
+    });
 
-    await sc.supportArgument(3, { from: beta.address });
-    await sc.supportArgument(2, { from: gamma.address });
-
-    await sc.insertAttack(1, 2, '');
-    await sc.insertAttack(2, 1, '');
-    await sc.insertAttack(1, 3, '');
-    await sc.insertAttack(3, 1, '');
+    const edgeAB = await sc.insertAttack(1, 2, '');
+    const edgeBA = await sc.insertAttack(2, 1, '');
+    const edgeAC = await sc.insertAttack(1, 3, '');
+    const edgeCA = await sc.insertAttack(3, 1, '');
 
     const g = await sc.getGraph(1);
     printGraph(g);
@@ -73,48 +64,50 @@ describe('Argumentation 0', function () {
     printGraph(r3);
 
     const r4 = await sc.enumeratingPreferredExtensions(3);
-    r4.logs.forEach((element: any) => {
+    r4.logs.forEach((element) => {
       console.log('***************************************');
       console.log(element.args.args);
     });
   });
 });
 
-describe('Argumentation 1', function () {
-  let Argumentation: Contract;
-  let alpha: string;
-  let beta: string;
-  let gamma: string;
-
-  beforeEach(async function () {
-    // Deploy the contract before each test
-    Argumentation = await ethers.getContractFactory("Argumentation");
-    const deployed = await Argumentation.deploy();
-    await deployed.deployed();
-
-    [alpha, beta, gamma] = await ethers.getSigners();
-  });
+contract('Argumentation 1', (accounts) => {
+  const alpha = accounts[0];
+  const beta = accounts[1];
+  const gamma = accounts[2];
 
   it('graph 2, related work', async () => {
-    const sc = Argumentation;
+    const sc = await Argumentation.deployed();
 
-    const resAlpha = await sc.insertArgument('b', { from: alpha.address });
+    const resAlpha = await sc.insertArgument('b', {
+      from: alpha,
+    });
     const resAlphaGasUsed = resAlpha.receipt.gasUsed;
-    const resBeta = await sc.insertArgument('c', { from: beta.address });
+    const resBeta = await sc.insertArgument('c', {
+      from: beta,
+    });
     const resBetaGasUsed = resBeta.receipt.gasUsed;
-    const resGamma = await sc.insertArgument('d', { from: gamma.address });
+    const resGamma = await sc.insertArgument('d', {
+      from: gamma,
+    });
     const resGammaGasUsed = resGamma.receipt.gasUsed;
-    const resAlpha2 = await sc.insertArgument('e', { from: alpha.address });
+    const resAlpha2 = await sc.insertArgument('e', {
+      from: alpha,
+    });
     const resAlpha2GasUsed = resAlpha2.receipt.gasUsed;
-
     console.log(
       'insertArgument(): ',
-      (resAlphaGasUsed + resBetaGasUsed + resGammaGasUsed + resAlpha2GasUsed) / 4
+      (resAlphaGasUsed + resBetaGasUsed + resGammaGasUsed + resAlpha2GasUsed) /
+        4
     );
 
-    const resBetaSupport = await sc.supportArgument(3, { from: beta.address });
+    const resBetaSupport = await sc.supportArgument(3, {
+      from: beta,
+    });
     const resBetaSupportGasUsed = resBetaSupport.receipt.gasUsed;
-    const resGammaSupport = await sc.supportArgument(2, { from: gamma.address });
+    const resGammaSupport = await sc.supportArgument(2, {
+      from: gamma,
+    });
     const resGammaSupportGasUsed = resGammaSupport.receipt.gasUsed;
     console.log(
       'supportArgument(): ',
@@ -151,7 +144,7 @@ describe('Argumentation 1', function () {
     console.log('pafReductionToAfPr3(): ', resReduction3GasUsed);
 
     const r4 = await sc.enumeratingPreferredExtensions(2);
-    r4.logs.forEach((element: any) => {
+    r4.logs.forEach((element) => {
       console.log('*************************************');
       console.log(element.args.args);
     });
@@ -160,48 +153,50 @@ describe('Argumentation 1', function () {
   });
 });
 
-
-describe('Argumentation 2', function () {
-  let Argumentation: Contract;
-  let alpha: string;
-  let beta: string;
-  let gamma: string;
-
-  beforeEach(async function () {
-    // Deploy the contract before each test
-    Argumentation = await ethers.getContractFactory("Argumentation");
-    const deployed = await Argumentation.deploy();
-    await deployed.deployed();
-
-    [alpha, beta, gamma] = await ethers.getSigners();
-  });
+contract('Argumentation 2', (accounts) => {
+  const alpha = accounts[0];
+  const beta = accounts[1];
+  const gamma = accounts[2];
 
   it('graph 3, new graph', async () => {
-    const sc = Argumentation;
+    const sc = await Argumentation.deployed();
 
-    const resAlpha = await sc.insertArgument('a', { from: alpha.address });
+    const resAlpha = await sc.insertArgument('a', {
+      from: alpha,
+    });
     const resAlphaGasUsed = resAlpha.receipt.gasUsed;
-    const resGamma = await sc.insertArgument('b', { from: gamma.address });
+    const resGamma = await sc.insertArgument('b', {
+      from: gamma,
+    });
     const resGammaGasUsed = resGamma.receipt.gasUsed;
-    const resBeta = await sc.insertArgument('c', { from: beta.address });
+    const resBeta = await sc.insertArgument('c', {
+      from: beta,
+    });
     const resBetaGasUsed = resBeta.receipt.gasUsed;
-    const resGamma2 = await sc.insertArgument('d', { from: gamma.address });
+    const resGamma2 = await sc.insertArgument('d', {
+      from: gamma,
+    });
     const resGamma2GasUsed = resGamma2.receipt.gasUsed;
     console.log(
       'insertArgument(): ',
-      (resAlphaGasUsed + resBetaGasUsed + resGammaGasUsed + resGamma2GasUsed) / 4
+      (resAlphaGasUsed + resBetaGasUsed + resGammaGasUsed + resGamma2GasUsed) /
+        4
     );
 
-    const resBetaSupport = await sc.supportArgument(1, { from: beta.address });
+    const resBetaSupport = await sc.supportArgument(1, {
+      from: beta,
+    });
     const resBetaSupportGasUsed = resBetaSupport.receipt.gasUsed;
-    const resAlphaSupport = await sc.supportArgument(3, { from: alpha.address });
+    const resAlphaSupport = await sc.supportArgument(3, {
+      from: alpha,
+    });
     const resAlphaSupportGasUsed = resAlphaSupport.receipt.gasUsed;
     console.log(
       'supportArgument(): ',
       (resBetaSupportGasUsed + resAlphaSupportGasUsed) / 2
     );
 
-    const edgeGasUsed: number[] = [];
+    const edgeGasUsed = [];
     const edgeAB = await sc.insertAttack(1, 2, '');
     edgeGasUsed.push(edgeAB.receipt.gasUsed);
     const edgeAC = await sc.insertAttack(1, 3, '');
@@ -247,7 +242,7 @@ describe('Argumentation 2', function () {
     console.log('pafReductionToAfPr1(): ', resReduction3GasUsed);
 
     const r4 = await sc.enumeratingPreferredExtensions(2);
-    r4.logs.forEach((element: any) => {
+    r4.logs.forEach((element) => {
       console.log('*************************************');
       console.log(element.args.args);
     });
@@ -256,66 +251,59 @@ describe('Argumentation 2', function () {
   });
 });
 
-
-
+/*
 for (let i = 0; i < 1; i++) {
-  describe('Argumentation N', function () {
+  contract('Argumentation N', (accounts) => {
+    const alpha = accounts[0];
+    const beta = accounts[1];
+    const gamma = accounts[2];
     const prefP = 0.25;
     const nodesNumber = 5;
     const edgesP = 0.66;
-    let Argumentation: Contract;
-    let signers: Signer[];
-    let alpha: Signer, beta: Signer, gamma: Signer;
     let edgesNumber = 0;
-  
-    beforeEach(async function () {
-      const Factory = await ethers.getContractFactory("Argumentation");
-      Argumentation = await Factory.deploy();
-      await Argumentation.deployed();
-  
-      signers = await ethers.getSigners();
-      [alpha, beta, gamma] = signers;
-      edgesNumber = 0;
-    });
-  
+
     it('random graphs', async () => {
-      const accounts = [alpha, beta, gamma];
-      const sc = Argumentation;
-  
+      const sc = await Argumentation.deployed();
+
       for (let j = 0; j < nodesNumber; j++) {
-        const argTx = await sc.connect(accounts[j % 3]).insertArgument(`a`);
-        await argTx.wait();
-  
+        await sc.insertArgument(`a`, {
+          from: accounts[j % 3],
+        });
         for (let k = 1; k <= 2; k++) {
           if (Math.random() < prefP) {
-            const supportTx = await sc
-              .connect(accounts[(j + k) % 3])
-              .supportArgument(j + 1);
-            await supportTx.wait();
+            await sc.supportArgument(j + 1, {
+              from: accounts[(j + k) % 3],
+            });
           }
         }
       }
-  
+
       for (let source = 1; source <= nodesNumber; source++) {
         for (let target = 1; target <= nodesNumber; target++) {
-          if (Math.random() < edgesP && source !== target) {
-            const attackTx = await sc.insertAttack(source, target, '');
-            await attackTx.wait();
+          if (Math.random() < edgesP && source != target) {
+            await sc.insertAttack(source, target, '');
             edgesNumber++;
           }
         }
       }
-  
+
+      //const g = await sc.getGraph(1);
+      //printGraph(g);
+
       const resReduction3 = await sc.pafReductionToAfPr3();
-      const receipt1 = await resReduction3.wait();
-      const reductionGasUsed = receipt1.gasUsed.toNumber();
+      //const r3 = await sc.getGraph(3);
+      //printGraph(r3);
+      const reductionGasUsed = resReduction3.receipt.gasUsed;
       console.log(reductionGasUsed);
-  
+
       const r4 = await sc.enumeratingPreferredExtensions(2);
-      const receipt2 = await r4.wait();
-      const gasUsed = receipt2.gasUsed.toNumber();
+      //r4.logs.forEach((element) => {
+      //  console.log('*************************************');
+      //  console.log(element.args.args);
+      //});
+      const gasUsed = r4.receipt.gasUsed;
       console.log(gasUsed);
-  
+
       fs.writeFileSync(
         filepath,
         `${nodesNumber}, ${edgesNumber}, ${edgesP}, ${prefP}, ${reductionGasUsed}, ${gasUsed}\n`,
@@ -324,4 +312,4 @@ for (let i = 0; i < 1; i++) {
     });
   });
 }
-
+*/

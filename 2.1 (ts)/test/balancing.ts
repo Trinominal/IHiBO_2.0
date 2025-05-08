@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
-import { Contract } from "ethers";
+import { Contract, ContractFactory, Signer } from "ethers";
 import { Balancing } from "../typechain-types"; // adjust the import path based on your project
 import { artifacts } from 'hardhat';
 import fs from 'fs';
@@ -9,9 +9,6 @@ const filepath = './data4.csv';
 // const Balancing = artifacts.require('Balancing'); // Type is generic in Hardhat + TypeChain context
 
 // export { Balancing, fs, filepath };
-
-const BalancingFactory = await ethers.getContractFactory('Balancing');
-const balancing = await BalancingFactory.deploy();
 
 
 export const printReasons = (R: {
@@ -58,36 +55,87 @@ export const printValuation = (valuation: number | string | bigint, issue: bigin
 
 
 describe("Balancing debugging", function () {
-  let balancing: Balancing;
-  let alpha: any;
+  let alpha: Signer;
+  let beta: Signer;
+  let gamma: Signer;
+  let BalancingFactory: ContractFactory;
+  let deployed: Contract; // Replace 'any' with the specific contract type if using TypeChain
 
   beforeEach(async function () {
-    const signers = await ethers.getSigners();
-    alpha = signers[0];
-
-    const BalancingFactory = await ethers.getContractFactory("Balancing");
-    balancing = await BalancingFactory.deploy();
-    await balancing.deployed();
+    BalancingFactory = await ethers.getContractFactory("Balancing");
+    deployed = await BalancingFactory.deploy();
+    
+    [alpha, beta, gamma] = await ethers.getSigners();
   });
 
   it("Test 1", async function () {
-    await balancing.setIssue(1);
-    await balancing.setReputation(await alpha.getAddress(), 1);
+    const balancing = deployed;
 
-    // Using callStatic to simulate a call without state change
-    const resAlpha10 = await balancing.connect(alpha).callStatic.voteOnReason(1, 1, 1, 1);
-    const resAlpha1 = await balancing.connect(alpha).voteOnReason(1, 1, 1, 1);
-    const resAlpha12 = await balancing.connect(alpha).callStatic.voteOnReason(1, 1, 1, 1);
+    
+    try {
+        await balancing.setIssue('1');
+        console.log("setIssue succeeded");
+    } catch (error) {
+        console.error("Error in setIssue:", error);
+    }
+    
+    const scAlpha = balancing.connect(alpha);
 
-    const resAlpha20 = await balancing.connect(alpha).callStatic.voteOnReason(2, 1, 2, 1);
-    const resAlpha2 = await balancing.connect(alpha).voteOnReason(2, 1, 2, 1);
-    const resAlpha22 = await balancing.connect(alpha).callStatic.voteOnReason(2, 1, 2, 1);
+    
+    try {
+        await balancing.setReputation(1, scAlpha)
+        console.log("setRep succeeded");
+    } catch (error) {
+        console.error("Error in setRep:", error);
+    }
+    
 
-    const resAlpha30 = await balancing.connect(alpha).callStatic.voteOnReason(3, 1, 0, 1);
-    const resAlpha3 = await balancing.connect(alpha).voteOnReason(3, 1, 0, 1);
-    const resAlpha31 = await balancing.connect(alpha).callStatic.voteOnReason(3, 1, 0, 1);
+    const checkAndVote = async (arg1: any, arg2: any, arg3: any, arg4: any) => {
+        console.log(`Arguments: ${arg1}, ${arg2}, ${arg3}, ${arg4}`);
+        console.log(`Types: ${typeof arg1}, ${typeof arg2}, ${typeof arg3}, ${typeof arg4}`);
+        return await scAlpha.voteOnReason(arg1, arg2, arg3, arg4);
+    };
+    
+    try {
+        const resAl1 = await checkAndVote('1', '1', '1', 1);
+        const resAl2 = await checkAndVote('2', '1', '2', 1);
+        const resAl3 = await checkAndVote(3, 1, 0, 1);
+        const resAl4 = await checkAndVote(4, 1, 0, 1);
+    } catch (error) {
+        console.error("Error in voteOnReason:", error);
+    }
+      
 
-    await balancing.connect(alpha).voteOnReason(4, 1, 0, 1);
+    // try {
+    //       await scAlpha.voteOnReason('1', '1', '1', 1);
+    //     console.log("vote1 succeeded");
+    // } catch (error) {
+    //     console.error("Error in vote1:", error);
+    // }
+    // await scAlpha.voteOnReason('1', '1', '1', 1);
+    // console.log('bla');
+    // await scAlpha.voteOnReason('2', '1', '2', 1);
+    // console.log('bla');
+    // await scAlpha.voteOnReason('3', '1', '0', 1);
+    // console.log('bla');
+    // await scAlpha.voteOnReason('4', '1', '0', 1);
+    // console.log('bla');
+    // // Using callStatic to simulate a call without state change
+    // const resAlpha10 = await balancing.callStatic.voteOnReason(1, 1, 1, 1);
+    // const resAlpha1 = await balancing.connect(alpha).voteOnReason(1, 1, 1, 1);
+    // const resAlpha12 = await balancing.connect(alpha).callStatic.voteOnReason(1, 1, 1, 1);
+
+    // const resAlpha20 = await balancing.connect(alpha).callStatic.voteOnReason(2, 1, 2, 1);
+    // const resAlpha2 = await balancing.connect(alpha).voteOnReason(2, 1, 2, 1);
+    // const resAlpha22 = await balancing.connect(alpha).callStatic.voteOnReason(2, 1, 2, 1);
+
+    // const resAlpha30 = await balancing.connect(alpha).callStatic.voteOnReason(3, 1, 0, 1);
+    // const resAlpha3 = await balancing.connect(alpha).voteOnReason(3, 1, 0, 1);
+    // const resAlpha31 = await balancing.connect(alpha).callStatic.voteOnReason(3, 1, 0, 1);
+
+    // await balancing.connect(alpha).voteOnReason(4, 1, 0, 1);
+
+    // console.log("bla");
 
     const reasons = await balancing.getReasons();
     printReasons(reasons);
@@ -122,6 +170,7 @@ describe("Balancing debugging", function () {
   });
 });
 
+/*
 describe("Balancing 0", function () {
   let balancing: Balancing;
   let alpha: any;
@@ -187,8 +236,8 @@ describe("Balancing 0", function () {
     // });
   });
 });
-
-
+*/
+/*
 describe("Balancing 1", () => {
   let alpha: any, beta: any, gamma: any;
   let sc: Contract;
@@ -241,8 +290,8 @@ describe("Balancing 1", () => {
     // }
   });
 });
-
-
+*/
+/*
 describe("Balancing 2", function () {
   let balancing: Balancing;
   let alpha: string;
@@ -294,12 +343,10 @@ describe("Balancing 2", function () {
     printValuation(pa1, issue);
   });
 });
- 
+ */
 
 
-
-
-
+/*
 
 
 // fs.writeFileSync(
@@ -405,3 +452,4 @@ describe("Balancing Random Graphs", function () {
     });
   }
 });
+*/

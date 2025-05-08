@@ -1,5 +1,5 @@
 {
-  "name": "ihibo_2.1",
+  "name": "2.1-(js)",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -12,8 +12,6 @@
   "type": "commonjs",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-    "@nomiclabs/hardhat-etherscan": "^3.1.8",
-    "dotenv": "^16.5.0",
-    "hardhat": "^2.23.0"
+    "hardhat": "^2.24.0"
   }
 }

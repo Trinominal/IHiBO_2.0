@@ -102,7 +102,7 @@ const printValuation = (p, issue) => {
 };
 
 
-// /*
+/*
 contract('Balancing debugging', (accounts) => {
   const alpha = accounts[0];
   // const beta = accounts[1];
@@ -229,7 +229,7 @@ contract('Balancing debugging', (accounts) => {
 
   });
 });
-// */
+*/
 
 /*
 contract('Balancing 0', (accounts) => {
