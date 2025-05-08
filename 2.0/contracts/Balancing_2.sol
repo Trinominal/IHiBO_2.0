@@ -84,17 +84,13 @@ contract Balancing {
             }
         }
 
-        if (reason == 0) {// reason is new add reason and set weight to 1
-            uint256 reasonID = weighing.reasonsIDs.count() + 1;
-            weighing.reasonsIDs.insert(bytes32(reasonID));
-            Reason storage reason = weighing.reasons[reasonID];
-            // reason.ground = ground;
-            weighing.reasons[reasonID].ground = ground;
-            // reason.option = option;
-            // reason.polarity = polarity;
-            weighing.reasons[reasonID].polarity = polarity;
-            // weights[reasonID-1] = confidence*reputations[msg.sender];
-            weighing.reasons[reasonID].weight = weighing.reasons[reasonID].weight + confidence*reputations[msg.sender];// maybe this should be magnitude instead of conf*rep
+        if (re == 0) {// reason is new add reason and set weight to 1
+            uint256 reasonID = graph.reasonsIDs.count() + 1;
+            graph.reasonsIDs.insert(bytes32(reasonID));
+            Reason storage reason = graph.reasons[reasonID];
+            graph.reasons[reasonID].justification = justification;
+            graph.reasons[reasonID].polarity = polarity;
+            graph.reasons[reasonID].weight = graph.reasons[reasonID].weight + confidence*reputations[msg.sender];
     
             HitchensUnorderedKeySetLib.Set storage source = sources[ msg.sender];
             source.insert(bytes32(reasonID));
