@@ -232,6 +232,22 @@ contract Balancing {
 
     // // create function to initialize contract. create access right for admin to set issue and read rights of the discourse.
 
+
+    // this function is not used yet, but it is a placeholder for the future.
+    // it is supposed to be used for dual scale detachment, where the decision is made using 4 scales jwo1, jwo2, rwo1, rwo2.
+    // possibly the shape of the weight system needs to be changed to allow for this.
+    function dualScaleDetachment()
+        public
+        view 
+        returns (string memory dec)
+    {
+        Weighing storage weighing = weighings[1];
+
+        dec = '';
+
+        return dec;
+    }
+
  
 
 // interaction functions 
