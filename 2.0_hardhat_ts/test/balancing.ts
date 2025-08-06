@@ -1,16 +1,16 @@
-// import { ethers } from "hardhat";
-// import { expect } from "chai";
-// import { Contract, ContractFactory, Signer } from "ethers";
-// import { Balancing } from "../typechain-types"; // adjust the import path based on your project
-// import { artifacts } from 'hardhat';
-// import fs from 'fs';
-
+import { ethers } from "hardhat";
+import { expect } from "chai";
+import { Contract, ContractFactory, Signer } from "ethers";
+import { Balancing } from "../typechain-types"; // adjust the import path based on your project
+import { artifacts } from 'hardhat';
+import fs from 'fs';
 const filepath = './data4.csv';
 
 // const Balancing = artifacts.require('Balancing'); // Type is generic in Hardhat + TypeChain context
 
 // export { Balancing, fs, filepath };
 
+console.log("This is a test file for the Balancing contract.");
 
 export const printReasons = (R: {
   justifications: bigint[];

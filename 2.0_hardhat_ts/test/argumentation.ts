@@ -1,14 +1,16 @@
-// import { ethers } from "hardhat";
-// import { Contract, ContractFactory } from "ethers";
-// import { expect } from "chai";
-// import hre from "hardhat";
-// import fs from 'fs';
+import { ethers } from "hardhat";
+import { Contract, ContractFactory, Signer } from "ethers";
+import { expect } from "chai";
+import hre from "hardhat";
+import fs from 'fs';
 
 // Filepath for storing the result
 const filepath = './data.csv';
 
+console.log("This is a test file for the Argumentation contract.");
+
 // Function to print the graph
-const printGraph = (g) => {
+const printGraph = (g: { nodes: any[], edgesSource: any[], edgesTarget: any[] }) => {
   console.log('--------Graph--------');
   for (const node of g.nodes) {
     console.log('Node:', node.toString());
@@ -25,7 +27,7 @@ const printGraph = (g) => {
 
 
 // Function to generate a random integer between min and max (inclusive)
-const getRandomIntInclusive = (min, max) => {
+const getRandomIntInclusive = (min: number, max: number): number => {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
@@ -33,11 +35,11 @@ const getRandomIntInclusive = (min, max) => {
 
 // /*
 describe('Argumentation 0', function () {
-  let alpha;
-  let beta;
-  let gamma;
-  let Argumentation;
-  let deployed;
+  let alpha: Signer;
+  let beta: Signer;
+  let gamma: Signer;
+  let Argumentation: ContractFactory;
+  let deployed: Contract;
   // let beta: string;
   // let gamma: string;
   // let deployed: Contract;
@@ -96,7 +98,7 @@ describe('Argumentation 0', function () {
     
     try {
       // Set up the event listener
-      sc.on('PreferredExtensions', (args) => {
+      sc.on('PreferredExtensions', (args: number[]) => {
         console.log('***************************************');
         console.log('Event args:', args[0]);
       });
