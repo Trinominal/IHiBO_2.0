@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
 import { Contract, ContractFactory, Signer } from "ethers";
-import { Balancing } from "../typechain-types"; // adjust the import path based on your project
+import { Balancing } from "../../typechain-types"; // adjust the import path based on your project
 import { artifacts } from 'hardhat';
 import fs from 'fs';
 const filepath = './data4.csv';
