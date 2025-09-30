@@ -159,6 +159,9 @@ contract DS_Detachment {
         require(edgeIds.exists(bytes32(edgeId)), "Edge does not exist");
         require(nodes[o1].isOption, "o1 must be an option");
         require(nodes[o2].isOption, "o2 must be an option");
+        // todo: consider validating that edgeId connects to o1 or o2
+        require(nodes[o1].incomingEdges.exists(bytes32(edgeId)) || nodes[o2].incomingEdges.exists(bytes32(edgeId)), "Edge must connect to o1 or o2");
+        // todo: consider validating edgeId connects to a reason node
 
         bytes32 key = _weightKey(edgeId, o1, o2, contextId);
         AggregatedWeight storage aggWeight = weights[key];
