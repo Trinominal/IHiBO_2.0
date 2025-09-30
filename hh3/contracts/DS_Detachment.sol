@@ -148,6 +148,7 @@ contract DS_Detachment {
         return keccak256(abi.encodePacked(edgeId, o1, o2, contextId));
     }
 
+    // todo: should the weight of o1 vs o2 be the same as o2 vs o1? If so, it can be instantiated here
     function voteWeight(
         uint256 edgeId,
         uint256 o1,
