@@ -1,3 +1,15 @@
+// // import { HardhatUserConfig } from "hardhat/config";
+// import "@nomicfoundation/hardhat-toolbox";
+// import "@nomicfoundation/hardhat-ignition";
+
+// // const config: HardhatUserConfig = {
+// export default {
+//   solidity: "0.8.28",
+// };
+
+
+
+
 import type { HardhatUserConfig } from "hardhat/config";
 
 import hardhatToolboxViemPlugin from "@nomicfoundation/hardhat-toolbox-viem";
