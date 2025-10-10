@@ -1,139 +1,3 @@
-// import { describe, it } from 'node:test';
-// import assert from 'node:assert';
-
-// describe('Argumentation', () => {
-//   it('should deploy and interact', async () => {
-//     const hre = await import('hardhat');
-//     const { ethers } = hre;
-
-//     const Argumentation = await ethers.getContractFactory('Argumentation');
-//     const sc = await Argumentation.deploy();
-//     await sc.deployed();
-
-//     const [alpha] = await ethers.getSigners();
-//     await sc.connect(alpha).insertArgument('a');
-
-//     const g = await sc.getGraph(1);
-//     console.log('Graph:', g);i
-
-//     assert.ok(g.nodes.length > 0, 'Graph should have nodes');
-//   });
-// });
-
-
-// import { test } from 'node:test';
-// import assert from 'node:assert';
-// import { getContractAt, getWalletClients, getPublicClient } from 'hardhat';
-
-// test('Argumentation: graph 1, IHiBO original', async () => {
-//   const publicClient = getPublicClient();
-//   const [alpha, beta, gamma] = await getWalletClients();
-
-//   const sc = await getContractAt('Argumentation', await scAddress(), {
-//     client: alpha,
-//   });
-
-//   await sc.write.insertArgument(['a']);
-//   await sc.write.insertArgument(['b'], { account: beta.account });
-//   await sc.write.insertArgument(['c'], { account: gamma.account });
-
-//   await sc.write.supportArgument([3], { account: beta.account });
-//   await sc.write.supportArgument([2], { account: gamma.account });
-
-//   await sc.write.insertAttack([1, 2, '']);
-//   await sc.write.insertAttack([2, 1, '']);
-//   await sc.write.insertAttack([1, 3, '']);
-//   await sc.write.insertAttack([3, 1, '']);
-
-//   const g = await sc.read.getGraph([1]);
-//   console.log('Graph:', g);
-
-//   await sc.write.pafReductionToAfPr1();
-//   const r1 = await sc.read.getGraph([2]);
-//   console.log('Reduction 1:', r1);
-
-//   await sc.write.pafReductionToAfPr3();
-//   const r3 = await sc.read.getGraph([3]);
-//   console.log('Reduction 3:', r3);
-
-//   const r4 = await sc.read.enumeratingPreferredExtensions([3]);
-//   console.log('Preferred Extensions:', r4);
-
-//   assert.ok(g.nodes.length > 0, 'Graph should have nodes');
-// });
-
-// // Helper to get deployed contract address
-// async function scAddress(): Promise<`0x${string}`> {
-//   const deployments = await import('../deployments/localhost/Argumentation.json');
-//   return deployments.address as `0x${string}`;
-// }
-
-// import assert from "node:assert/strict";
-// import { describe, it } from "node:test";
-// import { network } from "hardhat";
-
-// describe("Argumentation", async function () {
-//   const { viem } = await network.connect();
-//   const publicClient = await viem.getPublicClient();
-
-//   it("should deploy and run IHiBO original graph test", async () => {
-//     const sc = await viem.deployContract("Argumentation");
-
-//     // Insert arguments
-//     await sc.write.insertArgument(["a"]);
-//     await sc.write.insertArgument(["b"]);
-//     await sc.write.insertArgument(["c"]);
-
-//     // Support arguments
-//     await sc.write.supportArgument(3);
-//     await sc.write.supportArgument(2);
-
-//     // Insert attacks
-//     await sc.write.insertAttack([1, 2, ""]);
-//     await sc.write.insertAttack([2, 1, ""]);
-//     await sc.write.insertAttack([1, 3, ""]);
-//     await sc.write.insertAttack([3, 1, ""]);
-
-//     // Get original graph
-//     const g = await sc.read.getGraph([1]);
-//     console.log("--------Graph--------");
-//     for (const node of g.nodes) {
-//       console.log("Node:", node.toString());
-//     }
-//     for (let i = 0; i < g.edgesSource.length; i++) {
-//       console.log(
-//         g.edgesSource[i].toString(),
-//         " -> ",
-//         g.edgesTarget[i].toString()
-//       );
-//     }
-
-//     // Reduction 1
-//     await sc.write.pafReductionToAfPr1();
-//     const r1 = await sc.read.getGraph([2]);
-//     console.log("--------Reduction 1--------");
-//     for (const node of r1.nodes) {
-//       console.log("Node:", node.toString());
-//     }
-
-//     // Reduction 3
-//     await sc.write.pafReductionToAfPr3();
-//     const r3 = await sc.read.getGraph([3]);
-//     console.log("--------Reduction 3--------");
-//     for (const node of r3.nodes) {
-//       console.log("Node:", node.toString());
-//     }
-
-//     // Preferred extensions
-//     const r4 = await sc.read.enumeratingPreferredExtensions([3]);
-//     console.log("--------Preferred Extensions--------");
-//     console.log(r4);
-
-//     // Basic assertion
-//     assert.ok(g.nodes.length > 0, "Graph should have nodes");
-//   });
-// });
-
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { network } from "hardhat";
@@ -151,6 +15,10 @@ export interface Graph<N = unknown> {
  */
 export function printGraph<N>(g: Graph<N>): void {
   console.log("--------Graph--------");
+
+    // let nodes = g[0];
+    // let edgesSource = g[1];
+    // let edgesTarget = g[2];
 
   for (const node of g.nodes) {
     console.log("Node:", String(node));
@@ -182,10 +50,7 @@ describe("Argumentation", async function () {
   const [alpha, beta, gamma] = await viem.getWalletClients();
 
   it("should deploy and run IHiBO original graph test", async () => {
-    const sc = await viem.deployContract("Argumentation"//, {
-      // client: alpha,
-    // }
-  );
+    const sc = await viem.deployContract("Argumentation");
 
     // Insert arguments
     await sc.write.insertArgument(["a"], { account: alpha.account });
@@ -202,164 +67,235 @@ describe("Argumentation", async function () {
     await sc.write.insertAttack([1n, 3n, ""], { account: alpha.account });
     await sc.write.insertAttack([3n, 1n, ""], { account: gamma.account });
 
-    
-    // debugging 
-    const g = await sc.read.getGraph([1n]);
-    console.log("Raw graph output:", g);
-    if (Array.isArray(g.nodes)) {
-      for (const node of g.nodes) {
-        console.log("Node:", node.toString());
-      }
-    } else {
-      console.log("Unexpected graph format:", g);
-    }
-
-    console.log("--------Graph--------");
-    // if (Array.isArray(g.nodes)) {
-    for (const node of g) {
-      console.log("Node:", node.toString());
-    }
-    // }
-    if (Array.isArray(g.edgesSource) && Array.isArray(g.edgesTarget)) {
-      console.log("Edges:");
-      for (let i = 0; i < g.edgesSource.length; i++) {
-        console.log(g.edgesSource[i].toString(), " -> ", g.edgesTarget[i].toString());
-      }
-    }
-    console.log("--------End of Graph--------");
-
-    // 000000000000000000
-  //  // debugging 
-  //   const g = await sc.read.getGraph([1n]);
-  //   console.log("Raw graph output:", g);
-  //   if (Array.isArray(g.nodes)) {
-  //     for (const node of g.nodes) {
-  //       console.log("Node:", node.toString());
-  //     }
-  //   } else {
-  //     console.log("Unexpected graph format:", g);
-  //   }
-
-  //   console.log("--------Graph--------");
-  //   // if (Array.isArray(g.nodes)) {
-  //   for (const node of g) {
-  //     console.log("Node:", node.toString());
-  //   }
-
-  //   let i = 0; 
-  //   let name = ["nodes", "edgesSource", "edgesTarget"];
-  //   for (const node of g) {
-  //     console.log(name[i] + ":", node.toString());
-  //     i++;
-  //   }
-  //   const nodes = g.nodes;
-  //   const edgesSource = g.edgesSource;
-  //   const edgesTarget = g.edgesTarget;
-  //   console.log("Nodes array:", nodes);
-  //   console.log("Edges Source array:", edgesSource);
-  //   console.log("Edges Target array:", edgesTarget);
-
-  //   for (let i = 0; i < g.length; i++) {
-  //     console.log("Node:", g[i].toString());
-  //   }
-  //   if (Array.isArray(g.edgesSource) && Array.isArray(g.edgesTarget)) {
-  //     console.log("Edges:");
-  //     for (let i = 0; i < g.edgesSource.length; i++) {
-  //       console.log(g.edgesSource[i].toString(), " -> ", g.edgesTarget[i].toString());
-  //     }
-  //   }
-  //   console.log("--------End of Graph--------");
-
-  //   // 000000000000000000
-
-    /*
     // Get original graph
-    const g = await sc.read.getGraph([1]);
-    console.log("--------Graph--------");
-    for (const node of g.nodes) {
-      console.log("Node:", node.toString());
-    }
-    for (let i = 0; i < g.edgesSource.length; i++) {
-      console.log(
-        g.edgesSource[i].toString(),
-        " -> ",
-        g.edgesTarget[i].toString()
-      );
-    }
+
+    const gRaw = await sc.read.getGraph([1n]);
+    const g: Graph<number> = {
+      nodes: gRaw[0].map(n => Number(n)),
+      edgesSource: gRaw[1].map(n => Number(n)),
+      edgesTarget: gRaw[2].map(n => Number(n)),
+    };
+    printGraph(g);
+
 
     // Reduction 1
     await sc.write.pafReductionToAfPr1({ account: alpha.account });
-    const r1 = await sc.read.getGraph([2]);
+    const r1Raw = await sc.read.getGraph([2n]);
     console.log("--------Reduction 1--------");
-    for (const node of r1.nodes) {
-      console.log("Node:", node.toString());
-    }
+    const r1: Graph<number> = {
+      nodes: r1Raw[0].map(n => Number(n)),
+      edgesSource: r1Raw[1].map(n => Number(n)),
+      edgesTarget: r1Raw[2].map(n => Number(n)),
+    };
+    printGraph(r1);
 
     // Reduction 3
     await sc.write.pafReductionToAfPr3({ account: alpha.account });
-    const r3 = await sc.read.getGraph([3]);
+    const r3Raw = await sc.read.getGraph([3n]);
     console.log("--------Reduction 3--------");
-    for (const node of r3.nodes) {
-      console.log("Node:", node.toString());
-    }
+    const r3: Graph<number> = {
+      nodes: r3Raw[0].map(n => Number(n)),
+      edgesSource: r3Raw[1].map(n => Number(n)),
+      edgesTarget: r3Raw[2].map(n => Number(n)),
+    };
+    printGraph(r3);
 
     // Preferred extensions
-    const r4 = await sc.read.enumeratingPreferredExtensions([3]);
+    await sc.write.enumeratingPreferredExtensions([3n], { account: alpha.account });
+    const r4Raw = await sc.read.getGraph([4n]);
     console.log("--------Preferred Extensions--------");
-    console.log(r4);
+    const r4: Graph<number> = {
+      nodes: r4Raw[0].map(n => Number(n)),
+      edgesSource: r4Raw[1].map(n => Number(n)),
+      edgesTarget: r4Raw[2].map(n => Number(n)),
+    };
+    printGraph(r4);
 
     // Basic assertion
     assert.ok(g.nodes.length > 0, "Graph should have nodes");
-    */
+    // console.log("Random int [1,10]:", getRandomIntInclusive(1, 10));
+    
+  });
+});
+/*
+contract('Argumentation 1', (accounts) => {
+  const alpha = accounts[0];
+  const beta = accounts[1];
+  const gamma = accounts[2];
+
+  it('graph 2, related work', async () => {
+    const sc = await Argumentation.deployed();
+
+    const resAlpha = await sc.insertArgument('b', {
+      from: alpha,
+    });
+    const resAlphaGasUsed = resAlpha.receipt.gasUsed;
+    const resBeta = await sc.insertArgument('c', {
+      from: beta,
+    });
+    const resBetaGasUsed = resBeta.receipt.gasUsed;
+    const resGamma = await sc.insertArgument('d', {
+      from: gamma,
+    });
+    const resGammaGasUsed = resGamma.receipt.gasUsed;
+    const resAlpha2 = await sc.insertArgument('e', {
+      from: alpha,
+    });
+    const resAlpha2GasUsed = resAlpha2.receipt.gasUsed;
+    console.log(
+      'insertArgument(): ',
+      (resAlphaGasUsed + resBetaGasUsed + resGammaGasUsed + resAlpha2GasUsed) /
+        4
+    );
+
+    const resBetaSupport = await sc.supportArgument(3, {
+      from: beta,
+    });
+    const resBetaSupportGasUsed = resBetaSupport.receipt.gasUsed;
+    const resGammaSupport = await sc.supportArgument(2, {
+      from: gamma,
+    });
+    const resGammaSupportGasUsed = resGammaSupport.receipt.gasUsed;
+    console.log(
+      'supportArgument(): ',
+      (resBetaSupportGasUsed + resGammaSupportGasUsed) / 2
+    );
+
+    const edgeBC = await sc.insertAttack(1, 2, '');
+    const edgeBCGasUsed = edgeBC.receipt.gasUsed;
+    const edgeCD = await sc.insertAttack(2, 3, '');
+    const edgeCDGasUsed = edgeCD.receipt.gasUsed;
+    const edgeCE = await sc.insertAttack(2, 4, '');
+    const edgeCEGasUsed = edgeCE.receipt.gasUsed;
+    const edgeDB = await sc.insertAttack(3, 1, '');
+    const edgeDBGasUsed = edgeDB.receipt.gasUsed;
+    const edgeED = await sc.insertAttack(4, 3, '');
+    const edgeEDGasUsed = edgeED.receipt.gasUsed;
+    console.log(
+      'insertAttack(): ',
+      (edgeBCGasUsed +
+        edgeCDGasUsed +
+        edgeCEGasUsed +
+        edgeDBGasUsed +
+        edgeEDGasUsed) /
+        5
+    );
+
+    const g = await sc.getGraph(1);
+    printGraph(g);
+
+    const resReduction3 = await sc.pafReductionToAfPr3();
+    const r3 = await sc.getGraph(2);
+    printGraph(r3);
+    const resReduction3GasUsed = resReduction3.receipt.gasUsed;
+    console.log('pafReductionToAfPr3(): ', resReduction3GasUsed);
+
+    const r4 = await sc.enumeratingPreferredExtensions(2);
+    r4.logs.forEach((element) => {
+      console.log('*************************************');
+      console.log(element.args.args);
+    });
+    const r4GasUsed = r4.receipt.gasUsed;
+    console.log('enumeratingPreferredExtensions(): ', r4GasUsed);
   });
 });
 
+contract('Argumentation 2', (accounts) => {
+  const alpha = accounts[0];
+  const beta = accounts[1];
+  const gamma = accounts[2];
 
+  it('graph 3, new graph', async () => {
+    const sc = await Argumentation.deployed();
 
+    const resAlpha = await sc.insertArgument('a', {
+      from: alpha,
+    });
+    const resAlphaGasUsed = resAlpha.receipt.gasUsed;
+    const resGamma = await sc.insertArgument('b', {
+      from: gamma,
+    });
+    const resGammaGasUsed = resGamma.receipt.gasUsed;
+    const resBeta = await sc.insertArgument('c', {
+      from: beta,
+    });
+    const resBetaGasUsed = resBeta.receipt.gasUsed;
+    const resGamma2 = await sc.insertArgument('d', {
+      from: gamma,
+    });
+    const resGamma2GasUsed = resGamma2.receipt.gasUsed;
+    console.log(
+      'insertArgument(): ',
+      (resAlphaGasUsed + resBetaGasUsed + resGammaGasUsed + resGamma2GasUsed) /
+        4
+    );
 
-// import assert from "node:assert/strict";
-// import { describe, it } from "node:test";
+    const resBetaSupport = await sc.supportArgument(1, {
+      from: beta,
+    });
+    const resBetaSupportGasUsed = resBetaSupport.receipt.gasUsed;
+    const resAlphaSupport = await sc.supportArgument(3, {
+      from: alpha,
+    });
+    const resAlphaSupportGasUsed = resAlphaSupport.receipt.gasUsed;
+    console.log(
+      'supportArgument(): ',
+      (resBetaSupportGasUsed + resAlphaSupportGasUsed) / 2
+    );
 
-// import { network } from "hardhat";
+    const edgeGasUsed = [];
+    const edgeAB = await sc.insertAttack(1, 2, '');
+    edgeGasUsed.push(edgeAB.receipt.gasUsed);
+    const edgeAC = await sc.insertAttack(1, 3, '');
+    edgeGasUsed.push(edgeAC.receipt.gasUsed);
+    const edgeAD = await sc.insertAttack(1, 4, '');
+    edgeGasUsed.push(edgeAD.receipt.gasUsed);
 
-// describe("Argumentation", async function () {
-//   const { viem } = await network.connect();
-//   const publicClient = await viem.getPublicClient();
+    const edgeBA = await sc.insertAttack(2, 1, '');
+    edgeGasUsed.push(edgeBA.receipt.gasUsed);
+    const edgeBC = await sc.insertAttack(2, 3, '');
+    edgeGasUsed.push(edgeBC.receipt.gasUsed);
+    const edgeBD = await sc.insertAttack(2, 4, '');
+    edgeGasUsed.push(edgeBD.receipt.gasUsed);
 
-//   it("", async function () {
-//     const counter = await viem.deployContract("Counter");
+    const edgeCA = await sc.insertAttack(3, 1, '');
+    edgeGasUsed.push(edgeCA.receipt.gasUsed);
+    const edgeCB = await sc.insertAttack(3, 2, '');
+    edgeGasUsed.push(edgeCB.receipt.gasUsed);
+    const edgeCD = await sc.insertAttack(3, 4, '');
+    edgeGasUsed.push(edgeCD.receipt.gasUsed);
 
-//     await viem.assertions.emitWithArgs(
-//       counter.write.inc(),
-//       counter,
-//       "Increment",
-//       [1n],
-//     );
-//   });
+    const edgeDA = await sc.insertAttack(4, 1, '');
+    edgeGasUsed.push(edgeDA.receipt.gasUsed);
+    const edgeDB = await sc.insertAttack(4, 2, '');
+    edgeGasUsed.push(edgeDB.receipt.gasUsed);
+    const edgeDC = await sc.insertAttack(4, 3, '');
+    edgeGasUsed.push(edgeDC.receipt.gasUsed);
 
-//   it("The sum of the Increment events should match the current value", async function () {
-//     const counter = await viem.deployContract("Counter");
-//     const deploymentBlockNumber = await publicClient.getBlockNumber();
+    let avgGasUsed = 0;
+    for (const gu of edgeGasUsed) {
+      avgGasUsed += gu;
+    }
+    avgGasUsed /= edgeGasUsed.length;
+    console.log('insertAttack(): ', avgGasUsed);
 
-//     // run a series of increments
-//     for (let i = 1n; i <= 10n; i++) {
-//       await counter.write.incBy([i]);
-//     }
+    const g = await sc.getGraph(1);
+    printGraph(g);
 
-//     const events = await publicClient.getContractEvents({
-//       address: counter.address,
-//       abi: counter.abi,
-//       eventName: "Increment",
-//       fromBlock: deploymentBlockNumber,
-//       strict: true,
-//     });
+    const resReduction3 = await sc.pafReductionToAfPr1();
+    const r3 = await sc.getGraph(2);
+    printGraph(r3);
+    const resReduction3GasUsed = resReduction3.receipt.gasUsed;
+    console.log('pafReductionToAfPr1(): ', resReduction3GasUsed);
 
-//     // check that the aggregated events match the current value
-//     let total = 0n;
-//     for (const event of events) {
-//       total += event.args.by;
-//     }
+    const r4 = await sc.enumeratingPreferredExtensions(2);
+    r4.logs.forEach((element) => {
+      console.log('*************************************');
+      console.log(element.args.args);
+    });
+    const r4GasUsed = r4.receipt.gasUsed;
+    console.log('enumeratingPreferredExtensions(): ', r4GasUsed);
+  });
+});
 
-//     assert.equal(total, await counter.read.x());
-//   });
-// });
+*/
