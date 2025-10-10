@@ -138,6 +138,44 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { network } from "hardhat";
 
+// Define a minimal Graph shape. You can refine it to your actual types.
+export interface Graph<N = unknown> {
+  nodes: N[];
+  edgesSource: N[];
+  edgesTarget: N[];
+}
+
+/**
+ * Prints a graph to the console.
+ * Uses String(x) instead of x.toString() so it works for any N (number, object, etc.)
+ */
+export function printGraph<N>(g: Graph<N>): void {
+  console.log("--------Graph--------");
+
+  for (const node of g.nodes) {
+    console.log("Node:", String(node));
+  }
+
+  const len = Math.min(g.edgesSource.length, g.edgesTarget.length);
+  for (let i = 0; i < len; i++) {
+    console.log(String(g.edgesSource[i]), " -> ", String(g.edgesTarget[i]));
+  }
+}
+
+/**
+ * Returns a random integer in the inclusive range [min, max].
+ * Swaps if min > max to be robust.
+ */
+export function getRandomIntInclusive(min: number, max: number): number {
+  let lo = Math.ceil(min);
+  let hi = Math.floor(max);
+  if (hi < lo) {
+    const tmp = lo; lo = hi; hi = tmp;
+  }
+  return Math.floor(Math.random() * (hi - lo + 1)) + lo;
+}
+
+
 describe("Argumentation", async function () {
   const { viem } = await network.connect();
   const publicClient = await viem.getPublicClient();
@@ -191,7 +229,48 @@ describe("Argumentation", async function () {
     console.log("--------End of Graph--------");
 
     // 000000000000000000
+  //  // debugging 
+  //   const g = await sc.read.getGraph([1n]);
+  //   console.log("Raw graph output:", g);
+  //   if (Array.isArray(g.nodes)) {
+  //     for (const node of g.nodes) {
+  //       console.log("Node:", node.toString());
+  //     }
+  //   } else {
+  //     console.log("Unexpected graph format:", g);
+  //   }
 
+  //   console.log("--------Graph--------");
+  //   // if (Array.isArray(g.nodes)) {
+  //   for (const node of g) {
+  //     console.log("Node:", node.toString());
+  //   }
+
+  //   let i = 0; 
+  //   let name = ["nodes", "edgesSource", "edgesTarget"];
+  //   for (const node of g) {
+  //     console.log(name[i] + ":", node.toString());
+  //     i++;
+  //   }
+  //   const nodes = g.nodes;
+  //   const edgesSource = g.edgesSource;
+  //   const edgesTarget = g.edgesTarget;
+  //   console.log("Nodes array:", nodes);
+  //   console.log("Edges Source array:", edgesSource);
+  //   console.log("Edges Target array:", edgesTarget);
+
+  //   for (let i = 0; i < g.length; i++) {
+  //     console.log("Node:", g[i].toString());
+  //   }
+  //   if (Array.isArray(g.edgesSource) && Array.isArray(g.edgesTarget)) {
+  //     console.log("Edges:");
+  //     for (let i = 0; i < g.edgesSource.length; i++) {
+  //       console.log(g.edgesSource[i].toString(), " -> ", g.edgesTarget[i].toString());
+  //     }
+  //   }
+  //   console.log("--------End of Graph--------");
+
+  //   // 000000000000000000
 
     /*
     // Get original graph
