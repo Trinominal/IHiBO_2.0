@@ -153,6 +153,8 @@ describe('Argumentation 1', async (accounts) => {
     //   (resBetaSupportGasUsed + resGammaSupportGasUsed) / 2
     // );
 
+    // Insert attacks
+    // originally they were not inserted by an address.
     const edgeBC = await sc.write.insertAttack([1n, 2n, ""], { account: alpha.account });
     // const edgeBCGasUsed = edgeBC.receipt.gasUsed;
     const edgeCD = await sc.write.insertAttack([2n, 3n, ""], { account: beta.account });
@@ -220,93 +222,103 @@ describe('Argumentation 2', async (accounts) => {
   it('graph 3, new graph', async () => {
     const sc = await viem.deployContract("Argumentation");
 
-    const resAlpha = await sc.insertArgument('a', {
-      from: alpha,
-    });
-    const resAlphaGasUsed = resAlpha.receipt.gasUsed;
-    const resGamma = await sc.insertArgument('b', {
-      from: gamma,
-    });
-    const resGammaGasUsed = resGamma.receipt.gasUsed;
-    const resBeta = await sc.insertArgument('c', {
-      from: beta,
-    });
-    const resBetaGasUsed = resBeta.receipt.gasUsed;
-    const resGamma2 = await sc.insertArgument('d', {
-      from: gamma,
-    });
-    const resGamma2GasUsed = resGamma2.receipt.gasUsed;
-    console.log(
-      'insertArgument(): ',
-      (resAlphaGasUsed + resBetaGasUsed + resGammaGasUsed + resGamma2GasUsed) /
-        4
-    );
+    const resAlpha = await sc.write.insertArgument(['a'], { account: alpha.account });
+    // const resAlphaGasUsed = resAlpha.receipt.gasUsed;
+    const resGamma = await sc.write.insertArgument(['b'], { account: gamma.account });
+    // const resGammaGasUsed = resGamma.receipt.gasUsed;
+    const resBeta = await sc.write.insertArgument(['c'], { account: beta.account });
+    // const resBetaGasUsed = resBeta.receipt.gasUsed;
+    const resGamma2 = await sc.write.insertArgument(['d'], { account: gamma.account });
+    // const resGamma2GasUsed = resGamma2.receipt.gasUsed;
+    // console.log(
+    //   'insertArgument(): ',
+    //   (resAlphaGasUsed + resBetaGasUsed + resGammaGasUsed + resGamma2GasUsed) /
+    //     4
+    // );
 
-    const resBetaSupport = await sc.supportArgument(1, {
-      from: beta,
+    const resBetaSupport = await sc.write.supportArgument([1n], { account: beta.account });
+    // const resBetaSupportGasUsed = resBetaSupport.receipt.gasUsed;
+    const resAlphaSupport = await sc.write.supportArgument([3n], {
+      account: alpha.account,
     });
-    const resBetaSupportGasUsed = resBetaSupport.receipt.gasUsed;
-    const resAlphaSupport = await sc.supportArgument(3, {
-      from: alpha,
-    });
-    const resAlphaSupportGasUsed = resAlphaSupport.receipt.gasUsed;
-    console.log(
-      'supportArgument(): ',
-      (resBetaSupportGasUsed + resAlphaSupportGasUsed) / 2
-    );
+    // const resAlphaSupportGasUsed = resAlphaSupport.receipt.gasUsed;
+    // console.log(
+    //   'supportArgument(): ',
+    //   (resBetaSupportGasUsed + resAlphaSupportGasUsed) / 2
+    // );
 
     const edgeGasUsed = [];
-    const edgeAB = await sc.insertAttack(1, 2, '');
-    edgeGasUsed.push(edgeAB.receipt.gasUsed);
-    const edgeAC = await sc.insertAttack(1, 3, '');
-    edgeGasUsed.push(edgeAC.receipt.gasUsed);
-    const edgeAD = await sc.insertAttack(1, 4, '');
-    edgeGasUsed.push(edgeAD.receipt.gasUsed);
+    const edgeAB = await sc.write.insertAttack([1n, 2n, '']);
+    // edgeGasUsed.push(edgeAB.receipt.gasUsed);
+    const edgeAC = await sc.write.insertAttack([1n, 3n, '']);
+    // edgeGasUsed.push(edgeAC.receipt.gasUsed);
+    const edgeAD = await sc.write.insertAttack([1n, 4n, '']);
+    // edgeGasUsed.push(edgeAD.receipt.gasUsed);
 
-    const edgeBA = await sc.insertAttack(2, 1, '');
-    edgeGasUsed.push(edgeBA.receipt.gasUsed);
-    const edgeBC = await sc.insertAttack(2, 3, '');
-    edgeGasUsed.push(edgeBC.receipt.gasUsed);
-    const edgeBD = await sc.insertAttack(2, 4, '');
-    edgeGasUsed.push(edgeBD.receipt.gasUsed);
+    const edgeBA = await sc.write.insertAttack([2n, 1n, '']);
+    // edgeGasUsed.push(edgeBA.receipt.gasUsed);
+    const edgeBC = await sc.write.insertAttack([2n, 3n, '']);
+    // edgeGasUsed.push(edgeBC.receipt.gasUsed);
+    const edgeBD = await sc.write.insertAttack([2n, 4n, '']);
+    // edgeGasUsed.push(edgeBD.receipt.gasUsed);
 
-    const edgeCA = await sc.insertAttack(3, 1, '');
-    edgeGasUsed.push(edgeCA.receipt.gasUsed);
-    const edgeCB = await sc.insertAttack(3, 2, '');
-    edgeGasUsed.push(edgeCB.receipt.gasUsed);
-    const edgeCD = await sc.insertAttack(3, 4, '');
-    edgeGasUsed.push(edgeCD.receipt.gasUsed);
+    const edgeCA = await sc.write.insertAttack([3n, 1n, '']);
+    // edgeGasUsed.push(edgeCA.receipt.gasUsed);
+    const edgeCB = await sc.write.insertAttack([3n, 2n, '']);
+    // edgeGasUsed.push(edgeCB.receipt.gasUsed);
+    const edgeCD = await sc.write.insertAttack([3n, 4n, '']);
+    // edgeGasUsed.push(edgeCD.receipt.gasUsed);
 
-    const edgeDA = await sc.insertAttack(4, 1, '');
-    edgeGasUsed.push(edgeDA.receipt.gasUsed);
-    const edgeDB = await sc.insertAttack(4, 2, '');
-    edgeGasUsed.push(edgeDB.receipt.gasUsed);
-    const edgeDC = await sc.insertAttack(4, 3, '');
-    edgeGasUsed.push(edgeDC.receipt.gasUsed);
+    const edgeDA = await sc.write.insertAttack([4n, 1n, '']);
+    // edgeGasUsed.push(edgeDA.receipt.gasUsed);
+    const edgeDB = await sc.write.insertAttack([4n, 2n, '']);
+    // edgeGasUsed.push(edgeDB.receipt.gasUsed);
+    const edgeDC = await sc.write.insertAttack([4n, 3n, '']);
+    // edgeGasUsed.push(edgeDC.receipt.gasUsed);
 
-    let avgGasUsed = 0;
-    for (const gu of edgeGasUsed) {
-      avgGasUsed += gu;
-    }
-    avgGasUsed /= edgeGasUsed.length;
-    console.log('insertAttack(): ', avgGasUsed);
+    // let avgGasUsed = 0;
+    // for (const gu of edgeGasUsed) {
+    //   avgGasUsed += gu;
+    // }
+    // avgGasUsed /= edgeGasUsed.length;
+    // console.log('insertAttack(): ', avgGasUsed);
 
-    const g = await sc.getGraph(1);
+    console.log('--------Original Graph--------');
+    const gRaw = await sc.read.getGraph([1n]);
+    const g: Graph<number> = {
+      nodes: gRaw[0].map(n => Number(n)),
+      edgesSource: gRaw[1].map(n => Number(n)),
+      edgesTarget: gRaw[2].map(n => Number(n)),
+    };
     printGraph(g);
 
-    const resReduction3 = await sc.pafReductionToAfPr1();
-    const r3 = await sc.getGraph(2);
+    const resReduction3 = await sc.write.pafReductionToAfPr1();
+    console.log('--------Reduction 1--------');
+    const r3Raw = await sc.read.getGraph([2n]);
+    const r3: Graph<number> = {
+      nodes: r3Raw[0].map(n => Number(n)),
+      edgesSource: r3Raw[1].map(n => Number(n)),
+      edgesTarget: r3Raw[2].map(n => Number(n)),
+    };
     printGraph(r3);
-    const resReduction3GasUsed = resReduction3.receipt.gasUsed;
-    console.log('pafReductionToAfPr1(): ', resReduction3GasUsed);
+    // const resReduction3GasUsed = resReduction3.receipt.gasUsed;
+    // console.log('pafReductionToAfPr1(): ', resReduction3GasUsed);
 
-    const r4 = await sc.enumeratingPreferredExtensions(2);
-    r4.logs.forEach((element) => {
-      console.log('*************************************');
-      console.log(element.args.args);
-    });
-    const r4GasUsed = r4.receipt.gasUsed;
-    console.log('enumeratingPreferredExtensions(): ', r4GasUsed);
+    const resReductionPref = await sc.write.enumeratingPreferredExtensions([2n]);
+    console.log('--------Preferred Extensions--------');
+    const r4Raw = await sc.read.getGraph([3n]); 
+    const r4: Graph<number> = {
+      nodes: r4Raw[0].map(n => Number(n)),
+      edgesSource: r4Raw[1].map(n => Number(n)),
+      edgesTarget: r4Raw[2].map(n => Number(n)),
+    };
+    printGraph(r4);
+    // r4.logs.forEach((element) => {
+    //   console.log('*************************************');
+    //   console.log(element.args.args);
+    // });
+    // const r4GasUsed = r4.receipt.gasUsed;
+    // console.log('enumeratingPreferredExtensions(): ', r4GasUsed);
   });
 });
 
