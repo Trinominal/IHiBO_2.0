@@ -117,96 +117,108 @@ describe("Argumentation", async function () {
     
   });
 });
-/*
-contract('Argumentation 1', (accounts) => {
-  const alpha = accounts[0];
-  const beta = accounts[1];
-  const gamma = accounts[2];
+
+describe('Argumentation 1', async (accounts) => {
+  const { viem } = await network.connect();
+  const publicClient = await viem.getPublicClient();
+  const [alpha, beta, gamma] = await viem.getWalletClients();
 
   it('graph 2, related work', async () => {
-    const sc = await Argumentation.deployed();
+    const sc = await viem.deployContract("Argumentation");
 
-    const resAlpha = await sc.insertArgument('b', {
-      from: alpha,
-    });
-    const resAlphaGasUsed = resAlpha.receipt.gasUsed;
-    const resBeta = await sc.insertArgument('c', {
-      from: beta,
-    });
-    const resBetaGasUsed = resBeta.receipt.gasUsed;
-    const resGamma = await sc.insertArgument('d', {
-      from: gamma,
-    });
-    const resGammaGasUsed = resGamma.receipt.gasUsed;
-    const resAlpha2 = await sc.insertArgument('e', {
-      from: alpha,
-    });
-    const resAlpha2GasUsed = resAlpha2.receipt.gasUsed;
-    console.log(
-      'insertArgument(): ',
-      (resAlphaGasUsed + resBetaGasUsed + resGammaGasUsed + resAlpha2GasUsed) /
-        4
-    );
+    const resAlpha = await sc.write.insertArgument(['b'], { account: alpha.account });
+    // const resAlphaGasUsed = resAlpha.receipt.gasUsed;
+    const resBeta = await sc.write.insertArgument(['c'], { account: beta.account });
+    // const resBetaGasUsed = resBeta.receipt.gasUsed;
+    const resGamma = await sc.write.insertArgument(['d'], { account: gamma.account });
+    // const resGammaGasUsed = resGamma.receipt.gasUsed;
+    const resAlpha2 = await sc.write.insertArgument(['e'], { account: alpha.account });
+    // const resAlpha2GasUsed = resAlpha2.receipt.gasUsed;
+    // console.log(
+    //   'insertArgument(): ',
+    //   (resAlphaGasUsed + resBetaGasUsed + resGammaGasUsed + resAlpha2GasUsed) /
+    //     4
+    // );
 
-    const resBetaSupport = await sc.supportArgument(3, {
-      from: beta,
+    const resBetaSupport = await sc.write.supportArgument([3n], {
+      account: beta.account,
     });
-    const resBetaSupportGasUsed = resBetaSupport.receipt.gasUsed;
-    const resGammaSupport = await sc.supportArgument(2, {
-      from: gamma,
+    // const resBetaSupportGasUsed = resBetaSupport.receipt.gasUsed;
+    const resGammaSupport = await sc.write.supportArgument([2n], {
+      account: gamma.account,
     });
-    const resGammaSupportGasUsed = resGammaSupport.receipt.gasUsed;
-    console.log(
-      'supportArgument(): ',
-      (resBetaSupportGasUsed + resGammaSupportGasUsed) / 2
-    );
+    // const resGammaSupportGasUsed = resGammaSupport.receipt.gasUsed;
+    // console.log(
+    //   'supportArgument(): ',
+    //   (resBetaSupportGasUsed + resGammaSupportGasUsed) / 2
+    // );
 
-    const edgeBC = await sc.insertAttack(1, 2, '');
-    const edgeBCGasUsed = edgeBC.receipt.gasUsed;
-    const edgeCD = await sc.insertAttack(2, 3, '');
-    const edgeCDGasUsed = edgeCD.receipt.gasUsed;
-    const edgeCE = await sc.insertAttack(2, 4, '');
-    const edgeCEGasUsed = edgeCE.receipt.gasUsed;
-    const edgeDB = await sc.insertAttack(3, 1, '');
-    const edgeDBGasUsed = edgeDB.receipt.gasUsed;
-    const edgeED = await sc.insertAttack(4, 3, '');
-    const edgeEDGasUsed = edgeED.receipt.gasUsed;
-    console.log(
-      'insertAttack(): ',
-      (edgeBCGasUsed +
-        edgeCDGasUsed +
-        edgeCEGasUsed +
-        edgeDBGasUsed +
-        edgeEDGasUsed) /
-        5
-    );
+    const edgeBC = await sc.write.insertAttack([1n, 2n, ""], { account: alpha.account });
+    // const edgeBCGasUsed = edgeBC.receipt.gasUsed;
+    const edgeCD = await sc.write.insertAttack([2n, 3n, ""], { account: beta.account });
+    // const edgeCDGasUsed = edgeCD.receipt.gasUsed;
+    const edgeCE = await sc.write.insertAttack([2n, 4n, ""], { account: beta.account });
+    // const edgeCEGasUsed = edgeCE.receipt.gasUsed;
+    const edgeDB = await sc.write.insertAttack([3n, 1n, ""], { account: gamma.account });
+    // const edgeDBGasUsed = edgeDB.receipt.gasUsed;
+    const edgeED = await sc.write.insertAttack([4n, 3n, ""], { account: gamma.account });
+    // const edgeEDGasUsed = edgeED.receipt.gasUsed;
+    // console.log(
+    //   'insertAttack(): ',
+    //   (edgeBCGasUsed +
+    //     edgeCDGasUsed +
+    //     edgeCEGasUsed +
+    //     edgeDBGasUsed +
+    //     edgeEDGasUsed) /
+    //     5
+    // );
 
-    const g = await sc.getGraph(1);
+    console.log("--------Original Graph--------");
+    const gRaw = await sc.read.getGraph([1n]);
+    const g: Graph<number> = {
+      nodes: gRaw[0].map(n => Number(n)),
+      edgesSource: gRaw[1].map(n => Number(n)),
+      edgesTarget: gRaw[2].map(n => Number(n)),
+    };
     printGraph(g);
 
-    const resReduction3 = await sc.pafReductionToAfPr3();
-    const r3 = await sc.getGraph(2);
+    const resReduction3 = await sc.write.pafReductionToAfPr3();
+    console.log("--------Reduction 3--------");
+    const r3Raw = await sc.read.getGraph([2n]);
+    const r3: Graph<number> = {
+      nodes: r3Raw[0].map(n => Number(n)),
+      edgesSource: r3Raw[1].map(n => Number(n)),
+      edgesTarget: r3Raw[2].map(n => Number(n)),
+    };
     printGraph(r3);
-    const resReduction3GasUsed = resReduction3.receipt.gasUsed;
-    console.log('pafReductionToAfPr3(): ', resReduction3GasUsed);
+    // const resReduction3GasUsed = resReduction3.receipt.gasUsed;
+    // console.log('pafReductionToAfPr3(): ', resReduction3GasUsed);
 
-    const r4 = await sc.enumeratingPreferredExtensions(2);
-    r4.logs.forEach((element) => {
-      console.log('*************************************');
-      console.log(element.args.args);
-    });
-    const r4GasUsed = r4.receipt.gasUsed;
-    console.log('enumeratingPreferredExtensions(): ', r4GasUsed);
+    const resReductionPref = await sc.write.enumeratingPreferredExtensions([2n]);
+    console.log("--------Preferred Extensions--------");
+    const r4Raw = await sc.read.getGraph([3n]); 
+    const r4: Graph<number> = {
+      nodes: r4Raw[0].map(n => Number(n)),
+      edgesSource: r4Raw[1].map(n => Number(n)),
+      edgesTarget: r4Raw[2].map(n => Number(n)),
+    };
+    printGraph(r4);
+    // r4.logs.forEach((element) => {
+    //   console.log('*************************************');
+    //   console.log(element.args.args);
+    // });
+    // const r4GasUsed = r4.receipt.gasUsed;
+    // console.log('enumeratingPreferredExtensions(): ', r4GasUsed);
   });
 });
 
-contract('Argumentation 2', (accounts) => {
-  const alpha = accounts[0];
-  const beta = accounts[1];
-  const gamma = accounts[2];
+describe('Argumentation 2', async (accounts) => {
+  const { viem } = await network.connect();
+  const publicClient = await viem.getPublicClient();
+  const [alpha, beta, gamma] = await viem.getWalletClients();
 
   it('graph 3, new graph', async () => {
-    const sc = await Argumentation.deployed();
+    const sc = await viem.deployContract("Argumentation");
 
     const resAlpha = await sc.insertArgument('a', {
       from: alpha,
@@ -298,4 +310,3 @@ contract('Argumentation 2', (accounts) => {
   });
 });
 
-*/
