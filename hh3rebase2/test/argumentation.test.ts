@@ -1,6 +1,23 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { network } from "hardhat";
+import { decodeEventLog } from 'viem';
+import { parseAbiItem } from 'viem';
+
+
+const eventAbi = [
+  {
+    type: 'event',
+    name: 'PreferredExtensions',
+    inputs: [
+      {
+        name: 'args',
+        type: 'uint256[]',
+        indexed: false,
+      },
+    ],
+  },
+];
 
 // Define a minimal Graph shape. You can refine it to your actual types.
 export interface Graph<N = unknown> {
@@ -49,7 +66,7 @@ describe("Argumentation", async function () {
   const publicClient = await viem.getPublicClient();
   const [alpha, beta, gamma] = await viem.getWalletClients();
 
-  it("should deploy and run IHiBO original graph test", async () => {
+  it("IHiBO original graph test", async () => {
     const sc = await viem.deployContract("Argumentation");
 
     // Insert arguments
@@ -101,15 +118,26 @@ describe("Argumentation", async function () {
     printGraph(r3);
 
     // Preferred extensions
-    await sc.write.enumeratingPreferredExtensions([3n], { account: alpha.account });
-    const r4Raw = await sc.read.getGraph([4n]);
     console.log("--------Preferred Extensions--------");
-    const r4: Graph<number> = {
-      nodes: r4Raw[0].map(n => Number(n)),
-      edgesSource: r4Raw[1].map(n => Number(n)),
-      edgesTarget: r4Raw[2].map(n => Number(n)),
-    };
-    printGraph(r4);
+    const txHash = await sc.write.enumeratingPreferredExtensions([3n], { account: alpha.account });
+    const receipt = await publicClient.getTransactionReceipt({ hash: txHash });
+    console.log('Total logs:', receipt.logs.length);
+    const eventAbi = parseAbiItem('event PreferredExtensions(uint256[] args)');
+    const logs = receipt.logs.filter(log => log.address.toLowerCase() === sc.address.toLowerCase());
+    logs.forEach((log) => {
+      try {
+        const decoded = decodeEventLog({
+          abi: [eventAbi],
+          data: log.data,
+          topics: log.topics,
+        });
+        console.log('***************************************');
+        console.log(decoded.args);
+      } catch (err) {
+        console.log('Log did not match PreferredExtensions event');
+      }
+    });
+    console.log('***************************************');
 
     // Basic assertion
     assert.ok(g.nodes.length > 0, "Graph should have nodes");
@@ -118,6 +146,7 @@ describe("Argumentation", async function () {
   });
 });
 
+/*
 describe('Argumentation 1', async (accounts) => {
   const { viem } = await network.connect();
   const publicClient = await viem.getPublicClient();
@@ -322,3 +351,4 @@ describe('Argumentation 2', async (accounts) => {
   });
 });
 
+*/
