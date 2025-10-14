@@ -4,6 +4,13 @@ import { network } from "hardhat";
 import { decodeEventLog } from 'viem';
 import { parseAbiItem } from 'viem';
 
+import { createWalletClient, createPublicClient, http } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+import { anvil } from '@viem/anvil';
+import fs from 'fs';
+import { abi, address } from './Argumentation.sol'; // Replace with actual ABI and deployed address
+
+
 
 const eventAbi = [
   {
@@ -146,7 +153,7 @@ describe("Argumentation", async function () {
   });
 });
 
-/*
+
 describe('Argumentation 1', async (accounts) => {
   const { viem } = await network.connect();
   const publicClient = await viem.getPublicClient();
@@ -225,23 +232,49 @@ describe('Argumentation 1', async (accounts) => {
     // const resReduction3GasUsed = resReduction3.receipt.gasUsed;
     // console.log('pafReductionToAfPr3(): ', resReduction3GasUsed);
 
-    const resReductionPref = await sc.write.enumeratingPreferredExtensions([2n]);
-    console.log("--------Preferred Extensions--------");
-    const r4Raw = await sc.read.getGraph([3n]); 
-    const r4: Graph<number> = {
-      nodes: r4Raw[0].map(n => Number(n)),
-      edgesSource: r4Raw[1].map(n => Number(n)),
-      edgesTarget: r4Raw[2].map(n => Number(n)),
-    };
-    printGraph(r4);
+    // const resReductionPref = await sc.write.enumeratingPreferredExtensions([2n]);
+    // console.log("--------Preferred Extensions--------");
+    // const r4Raw = await sc.read.getGraph([3n]); 
+    // const r4: Graph<number> = {
+    //   nodes: r4Raw[0].map(n => Number(n)),
+    //   edgesSource: r4Raw[1].map(n => Number(n)),
+    //   edgesTarget: r4Raw[2].map(n => Number(n)),
+    // };
+    // printGraph(r4);
     // r4.logs.forEach((element) => {
     //   console.log('*************************************');
     //   console.log(element.args.args);
     // });
     // const r4GasUsed = r4.receipt.gasUsed;
     // console.log('enumeratingPreferredExtensions(): ', r4GasUsed);
+
+        // Preferred extensions
+    console.log("--------Preferred Extensions--------");
+    const txHash = await sc.write.enumeratingPreferredExtensions([2n], { account: alpha.account });
+    const receipt = await publicClient.getTransactionReceipt({ hash: txHash });
+    console.log('Total logs:', receipt.logs.length);
+    const eventAbi = parseAbiItem('event PreferredExtensions(uint256[] args)');
+    const logs = receipt.logs.filter(log => log.address.toLowerCase() === sc.address.toLowerCase());
+    logs.forEach((log) => {
+      try {
+        const decoded = decodeEventLog({
+          abi: [eventAbi],
+          data: log.data,
+          topics: log.topics,
+        });
+        console.log('***************************************');
+        console.log(decoded.args);
+      } catch (err) {
+        console.log('Log did not match PreferredExtensions event');
+      }
+    });
+    console.log('***************************************');
+
+
+
   });
 });
+
 
 describe('Argumentation 2', async (accounts) => {
   const { viem } = await network.connect();
@@ -333,22 +366,213 @@ describe('Argumentation 2', async (accounts) => {
     // const resReduction3GasUsed = resReduction3.receipt.gasUsed;
     // console.log('pafReductionToAfPr1(): ', resReduction3GasUsed);
 
-    const resReductionPref = await sc.write.enumeratingPreferredExtensions([2n]);
-    console.log('--------Preferred Extensions--------');
-    const r4Raw = await sc.read.getGraph([3n]); 
-    const r4: Graph<number> = {
-      nodes: r4Raw[0].map(n => Number(n)),
-      edgesSource: r4Raw[1].map(n => Number(n)),
-      edgesTarget: r4Raw[2].map(n => Number(n)),
-    };
-    printGraph(r4);
+    // const resReductionPref = await sc.write.enumeratingPreferredExtensions([2n]);
+    // console.log('--------Preferred Extensions--------');
+    // const r4Raw = await sc.read.getGraph([3n]); 
+    // const r4: Graph<number> = {
+    //   nodes: r4Raw[0].map(n => Number(n)),
+    //   edgesSource: r4Raw[1].map(n => Number(n)),
+    //   edgesTarget: r4Raw[2].map(n => Number(n)),
+    // };
+    // printGraph(r4);
     // r4.logs.forEach((element) => {
     //   console.log('*************************************');
     //   console.log(element.args.args);
     // });
     // const r4GasUsed = r4.receipt.gasUsed;
     // console.log('enumeratingPreferredExtensions(): ', r4GasUsed);
+
+    // Preferred extensions
+    console.log("--------Preferred Extensions--------");
+    const txHash = await sc.write.enumeratingPreferredExtensions([3n], { account: alpha.account });
+    const receipt = await publicClient.getTransactionReceipt({ hash: txHash });
+    console.log('Total logs:', receipt.logs.length);
+    const eventAbi = parseAbiItem('event PreferredExtensions(uint256[] args)');
+    const logs = receipt.logs.filter(log => log.address.toLowerCase() === sc.address.toLowerCase());
+    logs.forEach((log) => {
+      try {
+        const decoded = decodeEventLog({
+          abi: [eventAbi],
+          data: log.data,
+          topics: log.topics,
+        });
+        console.log('***************************************');
+        console.log(decoded.args);
+      } catch (err) {
+        console.log('Log did not match PreferredExtensions event');
+      }
+    });
+    console.log('***************************************');
+
   });
 });
 
+
+// /*
+const filepath = './data.csv';
+for (let i = 0; i < 1; i++) {
+  describe('Argumentation N', async (accounts) => {
+    const { viem } = await network.connect();
+    const publicClient = await viem.getPublicClient();
+    const [alpha, beta, gamma] = await viem.getWalletClients();
+
+    const prefP = 0.25;
+    const nodesNumber = 5;
+    const edgesP = 0.66;
+    let edgesNumber = 0;
+
+    it('graph 3, new graph', async () => {
+      const sc = await viem.deployContract("Argumentation");
+
+      for (let j = 0; j < nodesNumber; j++) {
+        await sc.write.insertArgument(['a'], { 
+          account: alpha.account 
+        });
+        // sc.insertArgument(`a`, {
+        //   from: accounts[j % 3],
+        // });
+        for (let k = 1; k <= 2; k++) {
+          if (Math.random() < prefP) {
+            await sc.write.supportArgument([BigInt(j+1)], { 
+              account: beta.account 
+            });
+            // sc.supportArgument(j + 1, {
+            //   from: accounts[(j + k) % 3],
+            // });
+          }
+        }
+      }
+
+      for (let source = 1; source <= nodesNumber; source++) {
+        for (let target = 1; target <= nodesNumber; target++) {
+          if (Math.random() < edgesP && source != target) {
+            await sc.write.insertAttack([BigInt(source), BigInt(target), '']);
+            edgesNumber++;
+          }
+        }
+      }
+
+      // const g = await sc.read.getGraph([1n]);
+      // printGraph(g);
+      // console.log('--------Original Graph--------');
+      // const gRaw = await sc.read.getGraph([1n]);
+      // const g: Graph<number> = {
+      //   nodes: gRaw[0].map(n => Number(n)),
+      //   edgesSource: gRaw[1].map(n => Number(n)),
+      //   edgesTarget: gRaw[2].map(n => Number(n)),
+      // };
+      // printGraph(g);
+
+      const resReduction3 = await sc.write.pafReductionToAfPr3();
+      //const r3 = await sc.getGraph(3);
+      //printGraph(r3);
+      const reductionReceipt = await publicClient.getTransactionReceipt({ hash: resReduction3 });
+      const reductionGasUsed = reductionReceipt?.gasUsed;
+      console.log(reductionGasUsed);
+
+      const txHash = await sc.write.enumeratingPreferredExtensions([2n], { account: alpha.account });
+      const receipt = await publicClient.getTransactionReceipt({ hash: txHash });
+      // If receipt is undefined, gasUsed will be undefined as well
+      const gasUsed = receipt?.gasUsed;
+      console.log(gasUsed);
+
+      fs.writeFileSync(
+        filepath,
+        `${nodesNumber}, ${edgesNumber}, ${edgesP}, ${prefP}, ${reductionGasUsed}, ${gasUsed}\n`,
+        { flag: 'a' }
+      );
+    });
+  });
+}
+// */
+
+
+/*
+const nodesNumber = 5;
+const prefP = 0.25;
+const edgesP = 0.66;
+let edgesNumber = 0;
+
+const filepath = './results.csv';
+
+async function runTest() {
+  const client = createWalletClient({
+    transport: http(),
+    account: privateKeyToAccount('0x...'), // Replace with actual test key
+  });
+
+  const publicClient = createPublicClient({
+    transport: http(),
+  });
+
+  const accounts = [client.account.address];
+
+  // Insert arguments
+  for (let j = 0; j < nodesNumber; j++) {
+    await client.writeContract({
+      address,
+      abi,
+      functionName: 'insertArgument',
+      args: ['a'],
+      account: accounts[j % 3],
+    });
+
+    for (let k = 1; k <= 2; k++) {
+      if (Math.random() < prefP) {
+        await client.writeContract({
+          address,
+          abi,
+          functionName: 'supportArgument',
+          args: [BigInt(j + 1)],
+          account: accounts[(j + k) % 3],
+        });
+      }
+    }
+  }
+
+  // Insert attacks
+  for (let source = 1; source <= nodesNumber; source++) {
+    for (let target = 1; target <= nodesNumber; target++) {
+      if (Math.random() < edgesP && source !== target) {
+        await client.writeContract({
+          address,
+          abi,
+          functionName: 'insertAttack',
+          args: [BigInt(source), BigInt(target), ''],
+        });
+        edgesNumber++;
+      }
+    }
+  }
+
+  // Reduction
+  const reductionTx = await client.writeContract({
+    address,
+    abi,
+    functionName: 'pafReductionToAfPr3',
+  });
+  const reductionReceipt = await publicClient.getTransactionReceipt({ hash: reductionTx });
+  const reductionGasUsed = reductionReceipt?.gasUsed;
+
+  // Enumeration
+  const enumerationTx = await client.writeContract({
+    address,
+    abi,
+    functionName: 'enumeratingPreferredExtensions',
+    args: [BigInt(2)],
+  });
+  const enumerationReceipt = await publicClient.getTransactionReceipt({ hash: enumerationTx });
+  const gasUsed = enumerationReceipt?.gasUsed;
+
+  // Write results
+  fs.writeFileSync(
+    filepath,
+    `${nodesNumber}, ${edgesNumber}, ${edgesP}, ${prefP}, ${reductionGasUsed}, ${gasUsed}\n`,
+    { flag: 'a' }
+  );
+
+  console.log('Test completed.');
+}
+
+runTest().catch(console.error);
 */

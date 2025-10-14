@@ -206,10 +206,19 @@ contract Argumentation {
             DirectedGraph.Node storage t = paf.nodes[edge.target];
             bool notBpreferredToA = !(t.value > s.value);
 
-            DirectedGraph.Edge storage edgeReverse = paf.edges[
-                DirectedGraph.cantorPairing(edge.target, edge.source)
-            ];
-            bool notBtoA = edgeReverse.source > 0 && edgeReverse.target > 0;
+            // DirectedGraph.Edge storage edgeReverse = paf.edges[
+            //     DirectedGraph.cantorPairing(edge.target, edge.source)
+            // ];
+            // bool notBtoA = edgeReverse.source > 0 && edgeReverse.target > 0;
+            bool notBtoA = true;
+            for (uint256 j = 0; j < paf.edgesIds.count(); j++) {
+                uint256 revEdgeId = uint256(paf.edgesIds.keyAtIndex(j));
+                DirectedGraph.Edge storage edgeRev = paf.edges[revEdgeId];
+                if (edge.target != edgeRev.source || edge.source != edgeRev.target) {
+                    // edgeReverse exists
+                    notBtoA = false;
+                }
+            }
 
             //insert to af
             if (notBpreferredToA || !notBtoA) {
