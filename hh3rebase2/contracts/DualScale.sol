@@ -39,6 +39,7 @@ contract DualScale {
         options[1] = 'do Nothing';
     }
 
+    // TODO
     function getWeighting(
         string memory ground,
         string memory option,
@@ -56,6 +57,7 @@ contract DualScale {
         requiring = weight.requiring;
     }
 
+    // TODO
     function voteOnReason(
         string memory ground,
         string memory option,
@@ -93,6 +95,7 @@ contract DualScale {
         }
     }
 
+    // TODO
     function BalanceScale(string memory option1, string memory option2)
         public
         view
@@ -124,6 +127,7 @@ contract DualScale {
         }
     }
 
+    // TODO
     function dynamicScale()
         public
     {
