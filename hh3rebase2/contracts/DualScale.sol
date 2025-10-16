@@ -26,41 +26,102 @@ contract DualScale {
     // we can use it as agentID since they each have their own context.
     mapping(bytes32 => Weight) private weightingFunction;
 
+    SimpleSet.Set reasonIDs;
+    mapping(uint256 => Reason) reasons; // reasonId = keccak(ground, option
+
     SimpleSet.Set optionIDs;
     mapping(uint256 => string) options;
 
     SimpleSet.Set agents; // each graph is a context
     mapping(address => uint) private agentIDs; // agentID is a contextID; each agent has their own context
 
-    event Output(uint256[] args);
+    event Output(int256[] args);
 
     constructor() public {
         optionIDs.insert(bytes32(uint256(1)));
         options[1] = 'do Nothing';
     }
 
-    // TODO
-    function getWeighting(
-        string memory ground,
-        string memory option,
+    // get justifying and requiring weights for a given reason, option1, option2, and agent
+    // TODO test if function works as intended
+    function getAgentReasonWeight(
+        uint256 memory reason,
+        string memory option1,
+        string memory option2,
         address agent
     ) public view returns (uint justifying, uint requiring) {
-        require(optionIDs.exists(keccak256(abi.encodePacked(option))), "Option does not exist");
+        require(reasonIDs.exists(bytes32(reason)), "Reason does not exist");
+        require(optionIDs.exists(keccak256(abi.encodePacked(option1))), "Option1 does not exist");
+        require(optionIDs.exists(keccak256(abi.encodePacked(option2))), "Option2 does not exist");
         require(agents.exists(keccak256(abi.encodePacked(agent))), "Agent does not exist");
 
         uint contextId = agentIDs[agent];
-        bytes32 reasonId = keccak256(abi.encodePacked(ground));
-        bytes32 key = keccak256(abi.encodePacked(reasonId, option, contextId));
+        bytes32 key = keccak256(abi.encodePacked(reason, option1, option2, contextId));
 
         Weight storage weight = weightingFunction[key];
         justifying = weight.justifying;
         requiring = weight.requiring;
     }
 
+    // get all the weights for a given agent in a given comparison of option1 and option2
+    // TODO 
+    function getAgentWeights(
+        string memory option1,
+        string memory option2,
+        address agent
+    ) public view returns (uint justifying, uint requiring) {
+        require(optionIDs.exists(keccak256(abi.encodePacked(option1))), "Option1 does not exist");
+        require(optionIDs.exists(keccak256(abi.encodePacked(option2))), "Option2 does not exist");
+        require(agents.exists(keccak256(abi.encodePacked(agent))), "Agent does not exist");
+
+        uint contextId = agentIDs[agent];
+        justifying = 0;
+        requiring = 0;
+
+        // iterate through all reasons
+        // this is inefficient, but we don't have a list of reasons stored anywhere.
+        // in practice, we would need to store a list of reasons to make this efficient.
+        // or we can use events to log reasons and then process them off-chain.
+        for (uint256 j = 0; j < 1000; j++) { // arbitrary limit to avoid infinite loop
+            bytes32 reasonId = bytes32(j);
+            bytes32 key = keccak256(abi.encodePacked(reasonId, option1, option2, contextId));
+            Weight storage weight = weightingFunction[key];
+            justifying += weight.justifying;
+            requiring += weight.requiring;
+        }
+    }
+
+    // get the aggregated weights for each reason in a given comparison of option1 and option2
+    // TODO 
+    function getAggregatedWeights(
+        string memory option1,
+        string memory option2
+    ) public view returns (uint justifying, uint requiring) {
+        require(optionIDs.exists(keccak256(abi.encodePacked(option1))), "Option1 does not exist");
+        require(optionIDs.exists(keccak256(abi.encodePacked(option2))), "Option2 does not exist");
+
+        justifying = 0;
+        requiring = 0;
+
+        // iterate through all reasons
+        // this is inefficient, but we don't have a list of reasons stored anywhere.
+        // in practice, we would need to store a list of reasons to make this efficient.
+        // or we can use events to log reasons and then process them off-chain.
+        for (uint256 j = 0; j < 1000; j++) { // arbitrary limit to avoid infinite loop
+            bytes32 reasonId = bytes32(j);
+            bytes32 key = keccak256(abi.encodePacked(reasonId, option1, option2));
+            Weight storage weight = weightingFunction[key];
+            justifying += weight.justifying;
+            requiring += weight.requiring;
+        }
+    }
+
+    // record the vote on a reason by an agent
     // TODO
     function voteOnReason(
         string memory ground,
-        string memory option,
+        string memory option1,
+        string memory option2,
         uint memory justifying,
         uint memory requiring
     ) public {
@@ -95,45 +156,71 @@ contract DualScale {
         }
     }
 
+    // compare two options and return the deontic status based on the aggregated weights
     // TODO
     function BalanceScale(string memory option1, string memory option2)
         public
         view
-        returns (int256 balance)
+        returns (int256 permissionScaleBalance, int256 requirementScaleBalance)
     {
         require(optionIDs.exists(keccak256(abi.encodePacked(option1))), "Option1 does not exist");
         require(optionIDs.exists(keccak256(abi.encodePacked(option2))), "Option2 does not exist");
 
-        balance = 0;
+        permissionScaleBalance = 0;
+        requirementScaleBalance = 0;
         for (uint256 i = 0; i < agents.count(); i++) {
             uint contextId = i + 1; // contextID starts from 1
             // iterate through all reasons
-            // this is inefficient, but we don't have a list of reasons stored anywhere.
-            // in practice, we would need to store a list of reasons to make this efficient.
-            // or we can use events to log reasons and then process them off-chain.
-            for (uint256 j = 0; j < 1000; j++) { // arbitrary limit to avoid infinite loop
-                bytes32 reasonId = bytes32(j);
-                bytes32 key1 = keccak256(abi.encodePacked(reasonId, option1, option2, contextId));
-                // bytes32 key2 = keccak256(abi.encodePacked(reasonId, option1, optioncontextId));
+
+            for (uint256 j = 0; j < reasons.count(); j++) { // arbitrary limit to avoid infinite loop
+                uint readsonID = j + 1; // reasonID starts from 1
+                bytes32 key1 = keccak256(abi.encodePacked(reasonID, option1, option2, contextId));
 
                 Weight storage weight = weightingFunction[key1];
-                // Weight storage weight2 = weightingFunction[key2];
 
                 permissionScaleBalance += int256(weight.justifying);
                 requirementScaleBalance -= int256(weight.requiring);
-                // balance -= int256(weight2.justifying);
-                // balance += int256(weight2.requiring);
             }
         }
+        permissionScaleBalance = sgn(permissionScaleBalance);
+        requirementScaleBalance = sgn(requirementScaleBalance);
     }
 
+    // dynamically scale all options and return the non-dominated options
     // TODO
     function dynamicScale()
         public
+        returns (int256[] memory args)
     {
         // This function compares all options pairwise and then determines which options never "loose"
-
         uint256 optionsCount = optionIDs.count();
+
+        uint256[] memory args = new uint256[](optionsCount);
+        for (uint256 i = 0; i < optionsCount; i++) {
+            for (uint256 j = 0; j < optionsCount; j++) {
+                if (i != j) {
+                    (int256 p, int256 r) = BalanceScale(
+                        options[uint256(optionIDs.keyAtIndex(i))],
+                        options[uint256(optionIDs.keyAtIndex(j))]
+                    );
+                    // if option i is dominated by option j, we can mark it as dominated
+                    if (p < 0) {
+                        args[i] = -1; // dominated
+                        break;
+                    } else if (args[i] != -1) {
+                        args[i] = uint256(optionIDs.keyAtIndex(i)); // non-dominated
+                    }
+                    if (r < 0) {
+                        args[j] = -1; // dominated
+                        break;
+                    } else if (args[j] != -1) {
+                        args[j] = uint256(optionIDs.keyAtIndex(j)); // non-dominated
+                    }
+                }
+            }
+        }
+
+        emit Output(args);
     }
 
     // function insertArgument(string memory metadata)
