@@ -38,13 +38,13 @@ contract DualScale {
     // a mapping can not be iterated over, so we use SimpleSet to keep track of existing IDs 
     // reasons[reasonId] = Reason
     SimpleSet.Set reasonIDs;
-    mapping(uint256 => Reason) reasons; // reasonId = keccak(ground, option)
+    mapping(bytes32 => Reason) reasons; // reasonId = keccak(ground, option)
     // option[optionID] = option
     SimpleSet.Set optionIDs;
-    mapping(uint256 => string) options;
+    mapping(bytes32 => string) options;
     // agents[agentID] = address
     SimpleSet.Set agentIDs; // agentID is used as a contextID; each agent has their own context
-    mapping(uint256 => address) private agents;
+    mapping(bytes32 => address) private agents;
 
 // ----------------------------------------------------------------------------
     // Events
@@ -86,18 +86,19 @@ contract DualScale {
     // get justifying and requiring weights for a given reason, option1, option2, and agent
     // TODO test if function works as intended
     function getAgentReasonWeight(
-        uint256 memory reason,
+        uint256 reasonID,
         string memory option1,
         string memory option2,
-        address agent
+        uint256 agentID
     ) public view returns (uint justifying, uint requiring) {
-        require(reasonIDs.exists(bytes32(reason)), "Reason does not exist");
-        require(optionIDs.exists(keccak256(abi.encodePacked(option1))), "Option1 does not exist");
-        require(optionIDs.exists(keccak256(abi.encodePacked(option2))), "Option2 does not exist");
-        require(agents.exists(keccak256(abi.encodePacked(agent))), "Agent does not exist");
+        // check if reason, options and agent exist // Actually, we can skip this check since if they don't exist, the weights will just be 0.
+        // require(reasonIDs.exists(bytes32(reason)), "Reason does not exist");
+        // require(optionIDs.exists(keccak256(abi.encodePacked(option1))), "Option1 does not exist");
+        // require(optionIDs.exists(keccak256(abi.encodePacked(option2))), "Option2 does not exist");
+        // require(agents.exists(keccak256(abi.encodePacked(agent))), "Agent does not exist");
 
-        uint contextId = agentIDs[agent];
-        bytes32 key = keccak256(abi.encodePacked(reason, option1, option2, contextId));
+        uint contextID = agentID;
+        bytes32 key = keccak256(abi.encodePacked(reasonID, option1, option2, contextID));
 
         Weight storage weight = weightingFunction[key];
         justifying = weight.justifying;
@@ -109,21 +110,21 @@ contract DualScale {
     function getAgentWeights(
         string memory option1,
         string memory option2,
-        address agent
+        uint256 agentID
     ) public view returns (uint justifying, uint requiring) {
         // check if options and agent exist // Actually, we can skip this check since if they don't exist, the weights will just be 0.
         // require(optionIDs.exists(keccak256(abi.encodePacked(option1))), "Option1 does not exist");
         // require(optionIDs.exists(keccak256(abi.encodePacked(option2))), "Option2 does not exist");
         // require(agents.exists(keccak256(abi.encodePacked(agent))), "Agent does not exist");
 
-        uint contextID = agentIDs[agent];
+        uint contextID = agentID;
         justifying = 0;
         requiring = 0;
 
         // iterate through all reasons
         uint256 reasonCount = reasonIDs.count();
         for (uint256 j = 0; j < reasonCount; j++) {
-            bytes32 reasonID = reasonIDs.get(j);
+            bytes32 reasonID = reasonIDs.keyAtIndex(j);
             bytes32 key = keccak256(abi.encodePacked(reasonID, option1, option2, contextID));
             Weight storage weight = weightingFunction[key];
             justifying += weight.justifying;
@@ -149,16 +150,16 @@ contract DualScale {
 
         // iterate through all reasons
         uint256 reasonCount = reasonIDs.count();
-        for (uint256 i = 0; i < agents.count(); i++) {
+        for (uint256 i = 0; i < agentIDs.count(); i++) {
             uint contextId = i + 1; // contextID starts from 1
             for (uint256 j = 0; j < reasonCount; j++) {
-                bytes32 reasonId = reasonIDs.get(j);
-                bytes32 key = keccak256(abi.encodePacked(reasonId, option1, option2, contextId));
+                bytes32 reasonID = reasonIDs.keyAtIndex(j);
+                bytes32 key = keccak256(abi.encodePacked(reasonID, option1, option2, contextId));
                 Weight storage weight = weightingFunction[key];
-                if (reason[reasonId].option == option1) {
+                if (reasons[reasonID].option == option1) {
                     justifyingOption1 += weight.justifying;
                     requiringOption1 += weight.requiring;
-                } else if (reason[reasonId].option == option2) {
+                } else if (reasons[reasonID].option == option2) {
                     justifyingOption2 += weight.justifying;
                     requiringOption2 += weight.requiring;
                 }
@@ -175,8 +176,8 @@ contract DualScale {
         string memory ground,
         string memory option1,
         string memory option2,
-        uint memory justifying,
-        uint memory requiring
+        uint justifying,
+        uint requiring
     ) public {
         // adding options and agents if they don't exist
         if (!optionIDs.exists(keccak256(abi.encodePacked(option1)))) {
@@ -189,11 +190,11 @@ contract DualScale {
         }
         if (!agents.exists(keccak256(abi.encodePacked(msg.sender)))) {
             agents.insert(keccak256(abi.encodePacked(msg.sender)));
-            agentIDs[msg.sender] = agents.count(); // assign a new contextID to the new agent
+            agentIDs.push(msg.sender); // assign a new contextID to the new agent
         }
 
         // initializing keys
-        uint contextID = agentIDs[msg.sender];
+        uint contextID = agentIDs.length - 1; // get the last index as contextID
         bytes32 reasonID = keccak256(abi.encodePacked(ground));
         bytes32 key = keccak256(abi.encodePacked(reasonID, option1, option2, contextID));
 
@@ -224,10 +225,10 @@ contract DualScale {
             // iterate through all reasons
 
             for (uint256 j = 0; j < reasons.count(); j++) { // arbitrary limit to avoid infinite loop
-                uint readsonID = j + 1; // reasonID starts from 1
-                bytes32 key1 = keccak256(abi.encodePacked(reasonID, option1, option2, contextId));
+                uint reasonID = j + 1; // reasonID starts from 1
+                bytes32 key = keccak256(abi.encodePacked(reasonID, option1, option2, contextId));
 
-                Weight storage weight = weightingFunction[key1];
+                Weight storage weight = weightingFunction[key];
 
                 permissionScaleBalance += int256(weight.justifying);
                 requirementScaleBalance -= int256(weight.requiring);
@@ -248,7 +249,7 @@ contract DualScale {
         // This function compares all options pairwise and then determines which options never "loose"
         uint256 optionsCount = optionIDs.count();
 
-        int256[] memory args = new uint256[](optionsCount);
+        args = new int256[](optionsCount);
         for (uint256 i = 0; i < optionsCount; i++) {
             for (uint256 j = 0; j < optionsCount; j++) {
                 if (i != j) {
